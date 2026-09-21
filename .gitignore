@@ -1,44 +1,69 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 
-# dependencies
-node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
 
-# testing
-/coverage
+# uv
+.python-version
 
-# next.js
-.next
-/out/
+# Build artifacts
+build/
+dist/
+*.egg-info/
 
-# production
-build
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
-# misc
+# Type checking
+.mypy_cache/
+.pyre/
+.pytype/
+
+# Linting
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Logs
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# Environment variables
+.env
 
-# vercel
-.vercel
+# Generated runtime data (FAISS index + sidecar, SQLite db, etc.)
+data/
+*.db
+*.sqlite
+*.sqlite3
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Website (Next.js)
+website/node_modules/
+website/.next/
+website/.env.local
 
-data
-dist
-model
+# Coverage
+coverage.xml
+
+# Hatch
+.hatch/
+
+# PyInstaller
+*.manifest
+*.spec
