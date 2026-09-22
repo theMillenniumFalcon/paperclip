@@ -2,7 +2,7 @@
 
 Code: `paperclip/memory/`
 
-This package is **on-disk memory for one assistant**: durable facts, dated events, a cheap model that decides whether to search, and another that periodically distills chat into those stores.
+This package is **on-disk memory for one assistant**: durable facts, dated events, **skills** (how to act), a cheap model that decides whether to search, and another that periodically distills chat into those stores.
 
 It is **not** hosted [paperclip Memory](https://paperclip.pages.dev) (the MCP product described in `skills/paperclip-memory/SKILL.md`). Those two stores do not sync.
 
@@ -17,6 +17,7 @@ In this checkout the package is **not wired into the loop yet**. Nothing in `mai
 | `semantic/store.py` | SQLite facts + shared FTS5 query helper |
 | `episodic/store.py` | SQLite dated episodes |
 | `episodic/notion_store.py` | Same episode API against a Notion database |
+| `procedural/` | Skills: load, match, install, export |
 
 Empty `__init__.py` files only mark packages. There is no facade like `from paperclip.memory import Memory`.
 
@@ -26,6 +27,7 @@ Empty `__init__.py` files only mark packages. There is no facade like `from pape
 | --- | --- | --- | --- |
 | Semantic | What do I know? | Alex prefers morning meetings | `SqliteFactStore` |
 | Episodic | What happened, and when? | 2026-07-10: planned the Acme demo with Alex | `SqliteEpisodeStore` or `NotionEpisodeStore` |
+| Procedural | How should I do this job? | Calendar skill: call `create_event` with these defaults | `SkillLoader` (`SKILL.md` files) |
 
 Search is **ranked keywords (SQLite FTS5 / BM25)**, not embeddings. For one user’s facts that is fast, local, and inspectable with `sqlite3`.
 
@@ -76,3 +78,4 @@ FTS tables are assumed to use FTS5’s default **unicode61** tokenizer with no c
 - [Consolidation](consolidation.md)
 - [Semantic store](semantic.md)
 - [Episodic store](episodic.md) (SQLite + Notion)
+- [Procedural memory](procedural.md) (skills)
