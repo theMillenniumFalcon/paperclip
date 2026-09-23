@@ -20,6 +20,8 @@ In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes
 | `mcp_oauth.py` | Browser OAuth + on-disk tokens |
 | `mcp_cli.py` | `paperclip mcp` list / login / logout |
 | `paperclip_memory.py` | Connect hosted Paperclip Memory (not a model tool) |
+| `_env.py` | Strip secrets from delegate subprocess env |
+| `workspace.py` | Dated folders + auto-run for delegated coding |
 
 Empty `__init__.py` only marks the package.
 
@@ -31,3 +33,5 @@ Empty `__init__.py` only marks the package.
 - [Search](search.md)
 - [MCP](mcp.md) (client, OAuth, CLI)
 - [Paperclip Memory](paperclip-memory.md) (hosted MCP connect)
+- [Delegate env](env.md)
+- [Workspace](workspace.md)
