@@ -15,6 +15,7 @@ In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes
 | `registry.py` | `Tool` dataclass + `ToolRegistry` (register, schemas, execute) |
 | `github.py` | Read-only GitHub via the `gh` CLI (`github_read`) |
 | `notes.py` | `save_note` — explicit write into semantic facts |
+| `search.py` | `search_web` — Tavily or DuckDuckGo HTML |
 
 Empty `__init__.py` only marks the package.
 
@@ -23,3 +24,4 @@ Empty `__init__.py` only marks the package.
 - [Registry](registry.md)
 - [GitHub](github.md)
 - [Notes](notes.md)
+- [Search](search.md)
