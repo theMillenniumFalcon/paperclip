@@ -16,6 +16,9 @@ In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes
 | `github.py` | Read-only GitHub via the `gh` CLI (`github_read`) |
 | `notes.py` | `save_note` — explicit write into semantic facts |
 | `search.py` | `search_web` — Tavily or DuckDuckGo HTML |
+| `mcp_client.py` | MCP bridge: stdio / HTTP servers → `Tool`s |
+| `mcp_oauth.py` | Browser OAuth + on-disk tokens |
+| `mcp_cli.py` | `paperclip mcp` list / login / logout |
 
 Empty `__init__.py` only marks the package.
 
@@ -25,3 +28,4 @@ Empty `__init__.py` only marks the package.
 - [GitHub](github.md)
 - [Notes](notes.md)
 - [Search](search.md)
+- [MCP](mcp.md) (client, OAuth, CLI)
