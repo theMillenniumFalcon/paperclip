@@ -19,6 +19,7 @@ In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes
 | `mcp_client.py` | MCP bridge: stdio / HTTP servers → `Tool`s |
 | `mcp_oauth.py` | Browser OAuth + on-disk tokens |
 | `mcp_cli.py` | `paperclip mcp` list / login / logout |
+| `paperclip_memory.py` | Connect hosted Paperclip Memory (not a model tool) |
 
 Empty `__init__.py` only marks the package.
 
@@ -29,3 +30,4 @@ Empty `__init__.py` only marks the package.
 - [Notes](notes.md)
 - [Search](search.md)
 - [MCP](mcp.md) (client, OAuth, CLI)
+- [Paperclip Memory](paperclip-memory.md) (hosted MCP connect)
