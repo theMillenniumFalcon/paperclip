@@ -23,6 +23,7 @@ In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes
 | `paperclip_memory.py` | Connect hosted Paperclip Memory (not a model tool) |
 | `_env.py` | Strip secrets from delegate subprocess env |
 | `workspace.py` | Dated folders + auto-run for delegated coding |
+| `google_calendar.py` | Read-only Google Calendar (OAuth, list events) |
 
 Empty `__init__.py` only marks the package.
 
@@ -37,3 +38,4 @@ Empty `__init__.py` only marks the package.
 - [Paperclip Memory](paperclip-memory.md) (hosted MCP connect)
 - [Delegate env](env.md)
 - [Workspace](workspace.md)
+- [Google Calendar](google-calendar.md)
