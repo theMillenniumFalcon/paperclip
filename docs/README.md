@@ -4,3 +4,4 @@
 - [Tools](tools/README.md) — functions the model can call (`paperclip/tools/`)
 - [Evals](evals/README.md) — deterministic and live tests (`evals/`)
 - [Database](db.md) — `state.db` schema (`paperclip/db.py`)
+- [Runtime](runtime/README.md) — per-turn working memory (`paperclip/runtime/`)
