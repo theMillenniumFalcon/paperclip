@@ -24,6 +24,7 @@ In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes
 | `_env.py` | Strip secrets from delegate subprocess env |
 | `workspace.py` | Dated folders + auto-run for delegated coding |
 | `google_calendar.py` | Read-only Google Calendar (OAuth, list events) |
+| `apple.py` | macOS Calendar / Mail / Reminders / Notes (AppleScript) |
 
 Empty `__init__.py` only marks the package.
 
@@ -39,3 +40,4 @@ Empty `__init__.py` only marks the package.
 - [Delegate env](env.md)
 - [Workspace](workspace.md)
 - [Google Calendar](google-calendar.md)
+- [Apple tools](apple.md)
