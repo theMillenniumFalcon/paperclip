@@ -6,7 +6,7 @@ This package is **on-disk memory for one assistant**: durable facts, dated event
 
 It is **not** hosted [paperclip Memory](https://paperclip.pages.dev) (the MCP product described in `skills/paperclip-memory/SKILL.md`). Those two stores do not sync.
 
-In this checkout the package is **not wired into the loop yet**. Nothing in `main.py` or `paperclip/loop/` imports it, and there is no schema/migration that creates the tables below.
+In this checkout the package is **not wired into the loop yet**. Nothing in `main.py` or `paperclip/loop/` imports it. Tables are created by [`paperclip/db.py`](../db.md) in `state.db`.
 
 ## Layout
 
@@ -58,19 +58,9 @@ User message
 
 `Settings` in this snapshot has no `small_model` or memory paths yet.
 
-## Schema the stores assume
+## Schema
 
-No migration lives in this repo. Inferred from SQL:
-
-**`facts`** — `id`, `subject`, `content`, `source`, `created_at`  
-Virtual table `facts_fts` with `rowid = facts.id`. Comments in older code referred to triggers `facts_au` / `facts_ad` to keep FTS in sync on update/delete.
-
-**`episodes`** — `id`, `happened_at`, `summary`, `created_at`  
-Virtual table `episodes_fts` with `rowid = episodes.id`.
-
-**`chat_log`** (consolidation only) — `id`, `role`, `content`, `consolidated` (0/1).
-
-FTS tables are assumed to use FTS5’s default **unicode61** tokenizer with no custom tokenizer. Query sanitization in `_fts_query` is written to that contract. Details: [semantic store](semantic.md#fts5-query-helper).
+`facts`, `episodes`, `chat_log`, and FTS tables — see [Database](../db.md). FTS uses the default **unicode61** tokenizer; query sanitization: [semantic store](semantic.md#fts5-query-helper).
 
 ## Pages
 
