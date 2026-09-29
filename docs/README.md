@@ -7,4 +7,5 @@
 - [Runtime](runtime/README.md) — per-turn working memory (`paperclip/runtime/`)
 - [Loop](loop/README.md) — LLM providers and client (`paperclip/loop/`)
 - [Connect](connect.md) — `paperclip connect` browser sign-in (`paperclip/connect.py`)
+- [Integrations](integrations.md) — connection status types (`paperclip/integrations.py`)
 - [Gateway](gateway/README.md) — terminal REPL (`paperclip/gateway/`)

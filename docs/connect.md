@@ -9,6 +9,8 @@ OAuth and browser sign-in **must not** run mid-chat (the user has to click Allow
 
 If an integration is missing a token, tools should tell the user to use one of those — not open a browser themselves.
 
+Status labels for the dashboard (`configured` vs `connected`, etc.) are defined in [Integrations](integrations.md).
+
 ## Registry — `CONNECTORS`
 
 | Name | Implementation |
