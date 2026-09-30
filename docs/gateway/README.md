@@ -9,9 +9,11 @@ A **gateway** only moves text in and out; the loop, memory, and tools do the wor
 | `cli.py` | Interactive terminal REPL (`python -m paperclip.gateway.cli` or entry point) |
 | `runner.py` | Async gateways: one thread-owned `Paperclip` per bot |
 | `telegram.py` | Telegram bot (long polling) |
+| `discord.py` | Discord bot (DMs + opt-in channels) |
 
 ## Pages
 
 - [CLI](cli.md)
 - [Runner](runner.md)
 - [Telegram](telegram.md)
+- [Discord](discord.md)
