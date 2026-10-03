@@ -10,6 +10,7 @@ A **gateway** only moves text in and out; the loop, memory, and tools do the wor
 | `runner.py` | Async gateways: one thread-owned `Paperclip` per bot |
 | `telegram.py` | Telegram bot (long polling) |
 | `discord.py` | Discord bot (DMs + opt-in channels) |
+| `whatsapp.py` | WhatsApp Cloud API webhook (port 5000) |
 
 ## Pages
 
@@ -17,3 +18,4 @@ A **gateway** only moves text in and out; the loop, memory, and tools do the wor
 - [Runner](runner.md)
 - [Telegram](telegram.md)
 - [Discord](discord.md)
+- [WhatsApp](whatsapp.md)
