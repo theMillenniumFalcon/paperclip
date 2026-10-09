@@ -1,4 +1,4 @@
-"""Working memory per turn: system prompt + chat history. See docs/runtime/session.md."""
+"""Per-turn working memory. See docs/runtime/session.md."""
 
 from __future__ import annotations
 
@@ -35,8 +35,8 @@ Rules:
 def load_soul(settings: Settings) -> str:
     soul_path = settings.home / "SOUL.md"
     if not soul_path.exists():
-        soul_path.write_text(DEFAULT_SOUL, encoding="utf-8")
-    return soul_path.read_text(encoding="utf-8")
+        soul_path.write_text(DEFAULT_SOUL)
+    return soul_path.read_text()
 
 
 class Session:
@@ -51,10 +51,7 @@ class Session:
 
         now = datetime.now().astimezone()
         parts = [load_soul(self.settings),
-                 f"\nRight now it is {now:%A, %Y-%m-%d %H:%M} ({now:%Z}, UTC{now:%z}).",
-                 (f"Your model: you are running on '{self.settings.model}' via the "
-                 f"'{self.settings.provider}' provider, inside Paperclip, a local-first "
-                 f"open-source agent harness (github.com/themillenniumfalcon/paperclip).")]
+                 f"\nRight now it is {now:%A, %Y-%m-%d %H:%M} ({now:%Z}, UTC{now:%z})."]
 
         if self.memory is not None:
             retrieved = self.memory.gated_retrieve(user_message, notify=notify)
@@ -67,7 +64,7 @@ class Session:
         return "\n".join(parts)
 
     def add_exchange(self, user_message: str, reply: str, tool_calls: list | None = None,
-                     source: str = "cli", meta: dict | None = None) -> None:
+                     source: str = "cli") -> None:
         record = reply
         if tool_calls:
             summary = "; ".join(f"{c['tool']}({c['args']}) -> {c['output']}" for c in tool_calls)
@@ -75,8 +72,7 @@ class Session:
         self.history.append({"role": "user", "content": user_message})
         self.history.append({"role": "assistant", "content": record})
         if self.memory is not None:
-            self.memory.log_chat(user_message, record, session_id=self.session_id,
-                                 source=source, meta=meta)
+            self.memory.log_chat(user_message, record, session_id=self.session_id, source=source)
 
     def start_new(self, session_id: str) -> None:
         self.session_id = session_id
@@ -87,7 +83,6 @@ class Session:
         self.history = []
         if self.memory is None:
             return
-        turns = self.settings.history_turns
-        for user_msg, reply in list(self.memory.session_history(session_id))[-turns:]:
+        for user_msg, reply in self.memory.session_history(session_id):
             self.history.append({"role": "user", "content": user_msg})
             self.history.append({"role": "assistant", "content": reply})

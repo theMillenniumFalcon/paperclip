@@ -2,13 +2,13 @@
 
 Code: `paperclip/runtime/`
 
-Per-turn **working memory**: what goes into the system prompt and the in-memory chat history for one conversation. Durable state lives in [memory](../memory/README.md) and [state.db](../db.md).
+Per-turn **working memory**: the system prompt and the in-memory chat history for one conversation. Durable facts, episodes, and the chat log live in [memory](../memory/README.md) and [state.db](../db.md).
 
-| Path | Role |
-| --- | --- |
-| `session.py` | `Session` — build system prompt, history, session switch |
+| Path | Doc | Role |
+| --- | --- | --- |
+| `session.py` | [session.md](session.md) | `load_soul`, `Session` |
 
-Not fully wired in minimal `app.py` yet (`Memory` is optional on `Session`).
+`memory` on `Session` is optional. Without it, the prompt is persona plus the clock, and history stays in process only.
 
 ## Pages
 
