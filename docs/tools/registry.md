@@ -4,22 +4,21 @@ Code: `paperclip/tools/registry.py`
 
 ## `Tool`
 
-| Field | Meaning |
+| Field | Role |
 | --- | --- |
-| `name` | What the model calls |
-| `description` | Shown to the model so it knows when to use the tool |
-| `input_schema` | JSON Schema for arguments (Anthropic `input_schema` shape) |
-| `fn` | Python callable; must return a `str` |
-| `wants_notify` | If true, `fn` also receives `_notify(kind, event)` (dashboard/live UI). Default no-op if the caller passes no notifier |
+| `name` | Model-visible name |
+| `description` | When to call it |
+| `input_schema` | JSON Schema for arguments |
+| `fn` | Python callable returning a string |
 
-`to_api()` is the wire payload: `name`, `description`, `input_schema` only — not the function.
+`to_api()` → `{name, description, input_schema}` for Anthropic `tools=`.
 
 ## `ToolRegistry`
 
 | Method | Behavior |
 | --- | --- |
-| `register(tool)` | Store by `tool.name` (later register overwrites) |
-| `schemas()` | `to_api()` for every tool, for `messages.create(..., tools=...)` |
-| `execute(name, args, notify=None)` | Look up, call `fn(**args)` (and `_notify` if `wants_notify`) |
+| `register(tool)` | Store by name (later register replaces same name) |
+| `schemas()` | List of `to_api()` dicts |
+| `execute(name, args)` | Call `fn(**args)`. Unknown tool → `Error: unknown tool '…'`. Exception → `Error running {name}: {exc}` (loop keeps going) |
 
-Unknown name or an exception inside `fn` becomes an **error string**, not a raised exception, so a bad tool call does not kill the turn.
+`build_registry` may set `mcp_bridge` on the instance for shutdown (`MCPBridge.close`).

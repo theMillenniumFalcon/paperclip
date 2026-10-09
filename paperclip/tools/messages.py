@@ -1,8 +1,8 @@
-"""send_message: draft into local outbox. See docs/tools/messages.md."""
+"""send_message drafts into the local outbox. See docs/tools/messages.md."""
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from paperclip.tools.registry import Tool
@@ -10,10 +10,10 @@ from paperclip.tools.registry import Tool
 
 def make_tool(home: Path) -> Tool:
     def send_message(to: str, body: str) -> str:
-        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
         safe_to = "".join(c if c.isalnum() else "-" for c in to)[:40]
         path = home / "outbox" / f"{stamp}-{safe_to}.txt"
-        path.write_text(f"To: {to}\n\n{body}\n", encoding="utf-8")
+        path.write_text(f"To: {to}\n\n{body}\n")
         return f"Message to {to} placed in outbox ({path.name}). Nothing was sent — review it there."
 
     return Tool(

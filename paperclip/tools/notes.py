@@ -1,4 +1,4 @@
-"""save_note: explicit write into semantic facts. See docs/tools/notes.md."""
+"""save_note into the facts table. See docs/tools/notes.md."""
 
 from __future__ import annotations
 

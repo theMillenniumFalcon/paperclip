@@ -1,4 +1,4 @@
-"""search_web: Tavily if keyed, else DuckDuckGo HTML. See docs/tools/search.md."""
+"""search_web. See docs/tools/search.md."""
 
 from __future__ import annotations
 

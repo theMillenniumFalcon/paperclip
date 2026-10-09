@@ -1,24 +1,16 @@
-# Search tool
+# Web search
 
 Code: `paperclip/tools/search.py`
 
-`search_web` — public web search. Stdlib `urllib` only. Returns **plain text** (title, snippet, URL) for the model; it does not hand over HTML.
+## `search_web`
 
-Typical loop: `search_web` → reason → other tools (e.g. calendar events for each match).
+`make_tool()`. Args: `query` (required), `max_results` (default 5).
 
-## Backends
-
-| Condition | Backend |
+| Key | Backend |
 | --- | --- |
-| `TAVILY_API_KEY` or `PAPERCLIP_SEARCH_API_KEY` set | [Tavily](https://tavily.com) POST `/search`, 20s timeout, snippet capped at 400 chars |
-| No key | DuckDuckGo HTML (`html.duckduckgo.com`), 20s timeout |
+| `TAVILY_API_KEY` or `PAPERCLIP_SEARCH_API_KEY` | POST `https://api.tavily.com/search`, snippets capped at 400 chars, 20s timeout |
+| neither | DuckDuckGo HTML (`html.duckduckgo.com`), unwrap `uddg=` redirects |
 
-DuckDuckGo: scrape `result__a` / `result__snippet`. Result hrefs are often a DDG redirect; `uddg=` is unquoted to the real URL. User-Agent is a desktop Chrome string so the HTML endpoint is less likely to refuse.
+Tavily failure → error string asking the model to answer from knowledge. DuckDuckGo empty or blocked → hint to set `TAVILY_API_KEY`. Tavily empty → “try a more specific query.”
 
-## Failures
-
-- **Tavily exception** → tell the model search failed; answer from knowledge or ask the user. Does not fall back to DDG.
-- **DDG exception or empty** → often blocked as automation; tell the user to set a free `TAVILY_API_KEY`.
-- **Tavily empty** → “No results found. Try a more specific query.”
-
-`make_tool()` takes no args. Schema: `query` (required), `max_results` (default 5).
+Output is numbered title, snippet, and URL lines. Stdlib only (`urllib`).

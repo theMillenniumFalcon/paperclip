@@ -1,89 +1,30 @@
-"""macOS Calendar, Mail, Reminders, Notes via AppleScript. See docs/tools/apple.md."""
+"""macOS Calendar, Mail, Reminders, Notes. See docs/tools/apple.md."""
 
 from __future__ import annotations
 
 import os
-import re
 import subprocess
 import sys
 import time
-from datetime import datetime, timedelta
 
 from paperclip.tools.registry import Tool
 
 _TIMEOUT = 30
-_PROBE_TIMEOUT = 8
-_PROBE_APPS = ("Calendar", "Mail", "Reminders", "Notes")
-_SLOW_APP_TIMEOUT = 25
 _cache: dict[str, tuple[float, str]] = {}
 
 
-def _is_running(app: str) -> bool:
-    try:
-        return subprocess.run(["pgrep", "-x", app], capture_output=True,
-                              check=False, timeout=5).returncode == 0
-    except (OSError, subprocess.SubprocessError):
-        return True
-
-
-def ensure_running(app: str, timeout: float = 12.0) -> None:
-    if sys.platform != "darwin" or _is_running(app):
-        return
-    try:
-        subprocess.run(["open", "-gj", "-a", app], capture_output=True,
-                       check=False, timeout=15)
-    except (OSError, subprocess.SubprocessError):
-        return
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        if _is_running(app):
-            return
-        time.sleep(0.25)
-
-
-def _osa(script: str, timeout: int = _TIMEOUT, app: str | None = None) -> tuple[bool, str]:
+def _osa(script: str, timeout: int = _TIMEOUT) -> tuple[bool, str]:
     if sys.platform != "darwin":
         return False, "Apple tools are macOS-only."
-    if app:
-        ensure_running(app)
     try:
-        r = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=timeout, check=False)
+        r = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
-        return False, (
-            f"timed out after {timeout}s. The app is either slow (Reminders and large "
-            "synced calendars routinely take 20s+) or waiting on a macOS permission "
-            "dialog — check for one, approve it, and ask again."
-        )
+        return False, "timed out — the app may be showing a permission dialog; approve it and retry."
     except OSError as exc:
         return False, f"could not run osascript ({exc})"
     if r.returncode != 0:
         return False, (r.stderr or "failed").strip()[:200]
     return True, r.stdout.strip()
-
-
-def probe_apple_tools() -> None:
-    failures = []
-    for app in _PROBE_APPS:
-        ok, detail = _osa(
-            f'tell application "{app}" to return version',
-            timeout=_PROBE_TIMEOUT,
-            app=app,
-        )
-        if not ok:
-            failures.append(f"{app}: {detail}")
-    if failures:
-        raise RuntimeError("Apple Tools probe failed: " + "; ".join(failures))
-
-
-def _parse_applescript_date(raw: str) -> datetime | None:
-    m = re.search(r"([A-Z][a-z]+ \d{1,2}, \d{4}) at (\d{1,2}:\d{2}:\d{2}\s*[AP]M)", raw)
-    if not m:
-        return None
-    try:
-        return datetime.strptime(  # noqa: DTZ007
-            f"{m.group(1)} {m.group(2).replace(chr(8239), ' ')}", "%B %d, %Y %I:%M:%S %p")
-    except ValueError:
-        return None
 
 
 def _cached(key: str, ttl: int, producer) -> str:
@@ -98,48 +39,29 @@ def _cached(key: str, ttl: int, producer) -> str:
 
 def read_apple_calendar(days_ahead: int = 7) -> str:
     def go() -> str:
-        cals = [c.strip() for c in os.getenv("PAPERCLIP_APPLE_CALENDARS", "").split(",") if c.strip()]
-        if not cals:
-            return (
-                "Calendar not configured. Set PAPERCLIP_APPLE_CALENDARS to the calendars you "
-                "actually use (e.g. PAPERCLIP_APPLE_CALENDARS=Work,Home) — a typical Mac has "
-                "30+ once holiday and subscribed calendars pile up, and reading them all "
-                "takes minutes. Run `osascript -e 'tell application \"Calendar\" to return "
-                "name of every calendar'` to see the names."
-            )
-
-        blocks = "\n".join(f'''
-  try
-    tell calendar "{c}"
-      set _su to summary of every event
-      set _st to start date of every event
-      repeat with i from 1 to (count of _su)
-        set out to out & "{c}" & "\\t" & (item i of _su) & "\\t" & ((item i of _st) as string) & linefeed
-      end repeat
-    end tell
-  end try''' for c in cals)
-
+        cals = os.getenv("PAPERCLIP_APPLE_CALENDARS", "").strip()
+        cal_clause = ""
+        if cals:
+            names = " or ".join(f'name of cal is "{c.strip()}"' for c in cals.split(","))
+            cal_clause = f"if not ({names}) then error number -128"
         script = f'''
 set out to ""
-tell application "Calendar"{blocks}
+set startDate to current date
+set endDate to (current date) + ({int(days_ahead)} * days)
+tell application "Calendar"
+  repeat with cal in calendars
+    try
+      {cal_clause}
+      set evs to (every event of cal whose start date ≥ startDate and start date ≤ endDate)
+      repeat with e in evs
+        set out to out & (name of cal) & " | " & (summary of e) & " | " & ((start date of e) as string) & linefeed
+      end repeat
+    end try
+  end repeat
 end tell
 return out'''
-        ok, res = _osa(script, timeout=20 + 12 * len(cals), app="Calendar")
-        if not ok:
-            return f"Calendar unavailable: {res}"
-
-        lo = datetime.now()
-        hi = lo + timedelta(days=int(days_ahead))
-        rows = []
-        for line in res.splitlines():
-            parts = line.split("\t")
-            if len(parts) != 3:
-                continue
-            when = _parse_applescript_date(parts[2])
-            if when and lo.date() <= when.date() <= hi.date():
-                rows.append((when, f"{parts[0]} | {parts[1]} | {when:%Y-%m-%d %H:%M}"))
-        rows.sort()
-        return "\n".join(r[1] for r in rows)
+        ok, res = _osa(script, timeout=45)
+        return res if ok else f"Calendar unavailable: {res}"
     return _cached(f"cal:{days_ahead}", 600, go) or "No events in that window."
 
 
@@ -150,7 +72,7 @@ set out to ""
 set cutoff to (current date) - ({int(hours)} * hours)
 tell application "Mail"
   set box to inbox
-  set msgs to messages of box
+  set msgs to (messages of box whose date received ≥ cutoff)
   set n to 0
   repeat with m in msgs
     if n ≥ {int(limit)} then exit repeat
@@ -159,15 +81,8 @@ tell application "Mail"
   end repeat
 end tell
 return out'''
-        ok, res = _osa(script, timeout=20, app="Mail")
-        if ok:
-            return res
-        return (
-            f"Mail unavailable: {res} Note: on this machine Mail.app could not even "
-            "count its own inbox within two minutes, which usually means a very large "
-            "mailbox or an in-progress sync. Apple Mail reading is effectively "
-            "unavailable until that settles."
-        )
+        ok, res = _osa(script, timeout=45)
+        return res if ok else f"Mail unavailable: {res}"
     return _cached(f"mail:{hours}:{limit}", 300, go) or "No recent mail."
 
 
@@ -175,15 +90,13 @@ def create_reminder(title: str, due: str = "") -> str:
     props = f'name:"{title}"'
     if due:
         props += f', due date:(date "{due}")'
-    ok, res = _osa(f'tell application "Reminders" to make new reminder with properties {{{props}}}',
-                   timeout=_SLOW_APP_TIMEOUT, app="Reminders")
+    ok, res = _osa(f'tell application "Reminders" to make new reminder with properties {{{props}}}')
     return f"Reminder created: {title}" if ok else f"Reminder failed: {res}"
 
 
 def create_note(title: str, body: str = "") -> str:
     safe = (title + "\n" + body).replace('"', "'")
-    ok, res = _osa(f'tell application "Notes" to make new note at folder "Notes" with properties {{body:"{safe}"}}',
-                   timeout=_SLOW_APP_TIMEOUT, app="Notes")
+    ok, res = _osa(f'tell application "Notes" to make new note at folder "Notes" with properties {{body:"{safe}"}}')
     return f"Note created: {title}" if ok else f"Note failed: {res}"
 
 

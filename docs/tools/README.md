@@ -2,42 +2,53 @@
 
 Code: `paperclip/tools/`
 
-What the model can **call**: a name, a JSON schema, and a Python function. Results come back as strings the loop can put in a `tool_result` block.
+What the model can **call**: a name, a JSON schema, and a Python function that returns a string. `build_registry` assembles them. Docs are the reference for each module.
 
-This is not hosted paperclip Memory and not skills. Skills tell the model *how* to act; tools are the actual functions.
+## `build_registry(conn, settings, memory=None)`
 
-In this checkout nothing in `main.py` or `paperclip/loop/` registers or executes these tools yet.
+Always registered:
+
+| Tool | Module |
+| --- | --- |
+| `create_event` | [calendar.md](calendar.md) |
+| `list_events` | [calendar.md](calendar.md) |
+| `save_note` | [notes.md](notes.md) |
+| `send_message` | [messages.md](messages.md) |
+| `search_web` | [search.md](search.md) |
+
+When `memory` is passed: `manage_memory`, `update_soul`, `create_skill` — [memory-admin.md](memory-admin.md).
+
+Opt-in:
+
+| Gate | Tools |
+| --- | --- |
+| `PAPERCLIP_EXPERIMENTAL=1` | stubs in [experimental.md](experimental.md) |
+| `settings.apple_tools` (`PAPERCLIP_APPLE_TOOLS=1`) | [apple.md](apple.md) |
+| `{PAPERCLIP_HOME}/mcp.json` exists | [mcp-client.md](mcp-client.md); sets `registry.mcp_bridge` |
+
+Missing `mcp` package: print install hint `pip install 'paperclip[mcp]'` and continue.
 
 ## Layout
 
-| Path | Role |
+| Path | Doc |
 | --- | --- |
-| `registry.py` | `Tool` dataclass + `ToolRegistry` (register, schemas, execute) |
-| `github.py` | Read-only GitHub via the `gh` CLI (`github_read`) |
-| `notes.py` | `save_note` — explicit write into semantic facts |
-| `search.py` | `search_web` — Tavily or DuckDuckGo HTML |
-| `messages.py` | `send_message` — draft into local outbox (does not send) |
-| `mcp_client.py` | MCP bridge: stdio / HTTP servers → `Tool`s |
-| `mcp_oauth.py` | Browser OAuth + on-disk tokens |
-| `mcp_cli.py` | `paperclip mcp` list / login / logout |
-| `paperclip_memory.py` | Connect hosted Paperclip Memory (not a model tool) |
-| `_env.py` | Strip secrets from delegate subprocess env |
-| `workspace.py` | Dated folders + auto-run for delegated coding |
-| `google_calendar.py` | Read-only Google Calendar (OAuth, list events) |
-| `apple.py` | macOS Calendar / Mail / Reminders / Notes (AppleScript) |
+| `registry.py` | [registry.md](registry.md) |
+| `calendar.py` | [calendar.md](calendar.md) |
+| `notes.py` | [notes.md](notes.md) |
+| `messages.py` | [messages.md](messages.md) |
+| `search.py` | [search.md](search.md) |
+| `memory_admin.py` | [memory-admin.md](memory-admin.md) |
+| `apple.py` | [apple.md](apple.md) |
+| `experimental.py` | [experimental.md](experimental.md) |
+| `mcp_client.py` | [mcp-client.md](mcp-client.md) |
 
-Empty `__init__.py` only marks the package.
+## Settings used here
 
-## Pages
-
-- [Registry](registry.md)
-- [GitHub](github.md)
-- [Notes](notes.md)
-- [Search](search.md)
-- [Messages](messages.md)
-- [MCP](mcp.md) (client, OAuth, CLI)
-- [Paperclip Memory](paperclip-memory.md) (hosted MCP connect)
-- [Delegate env](env.md)
-- [Workspace](workspace.md)
-- [Google Calendar](google-calendar.md)
-- [Apple tools](apple.md)
+| Env | Role |
+| --- | --- |
+| `PAPERCLIP_APPLE_TOOLS` | Register AppleScript tools |
+| `PAPERCLIP_APPLE_CALENDAR` | Sync `create_event` into Calendar.app |
+| `PAPERCLIP_APPLE_CALENDARS` | Limit which calendars `read_apple_calendar` scans |
+| `PAPERCLIP_EXPERIMENTAL` | Register stub tools |
+| `TAVILY_API_KEY` or `PAPERCLIP_SEARCH_API_KEY` | Prefer Tavily over DuckDuckGo |
+| `PAPERCLIP_HOME` | Outbox, `calendar.ics`, `mcp.json`, skills, `SOUL.md` |

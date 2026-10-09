@@ -35,6 +35,12 @@ class Settings:
     gh_tool: bool = field(
         default_factory=lambda: os.getenv("PAPERCLIP_GH_TOOL", "").lower() in ("1", "true", "yes")
     )
+    apple_tools: bool = field(
+        default_factory=lambda: os.getenv("PAPERCLIP_APPLE_TOOLS", "").lower() in ("1", "true", "yes")
+    )
+    apple_calendar: bool = field(
+        default_factory=lambda: os.getenv("PAPERCLIP_APPLE_CALENDAR", "").lower() in ("1", "true", "yes")
+    )
     home: Path = field(default_factory=lambda: Path(os.getenv("PAPERCLIP_HOME", ".paperclip")))
     semantic_store: str = field(
         default_factory=lambda: os.getenv("PAPERCLIP_SEMANTIC_STORE", "sqlite").strip().lower()

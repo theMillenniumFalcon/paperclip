@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Gateway: docs are canonical
 
-For `paperclip/gateway/`, `docs/gateway/`, `paperclip/loop/`, `docs/loop/`, `paperclip/memory/`, and `docs/memory/`:
+For `paperclip/gateway/`, `docs/gateway/`, `paperclip/loop/`, `docs/loop/`, `paperclip/memory/`, `docs/memory/`, `paperclip/tools/`, and `docs/tools/`:
 
 - Each gateway module should have a one-line docstring pointing at its doc page (e.g. `See docs/gateway/cli.md`).
 - Explain setup, env vars, algorithms, and engineering rationale in the matching `.md` file—not long comments or docstrings in code.
