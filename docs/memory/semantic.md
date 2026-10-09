@@ -1,38 +1,54 @@
 # Semantic store
 
-Code: `paperclip/memory/semantic/store.py`
+Code: `paperclip/memory/semantic/store.py` (default), `semantic/supabase_store.py` (optional).
 
-Durable facts, searched with SQLite FTS5. Same database file as [episodes](episodic.md); different table and ranking.
-
-Older comments mentioned `PAPERCLIP_SEMANTIC_STORE=supabase` and `supabase_store.py`. That file is not in this repo.
+Durable **facts**, searched for injection into the prompt. Episodes use the same FTS helper: `_fts_query` in `store.py`.
 
 ## `SqliteFactStore`
 
-Holds a `sqlite3.Connection`.
+Holds a `sqlite3.Connection` to `state.db`.
 
 | Method | Behavior |
 | --- | --- |
-| `add(subject, content, source="user")` | Insert; `subject` is lowercased and stripped. `source` is `"user"` or `"consolidation"`. |
-| `search(query, top_k=4)` | FTS join `facts_fts` → `facts`, `ORDER BY rank`. Format `[subject] content`. Empty FTS query → `[]`. |
-| `list(limit=200)` | Newest ids first, full dicts (dashboard). |
+| `add(subject, content, source="user")` | Insert; `subject` lowercased/stripped. `source` e.g. `user`, `consolidation`. |
+| `search(query, top_k=4)` | `facts_fts MATCH` → `ORDER BY rank`. Lines `[subject] content`. Empty FTS → `[]`. |
+| `list(limit=200)` | Newest ids first. |
 | `search_with_ids(query, top_k=8)` | Like search with ids; empty query → `list(top_k)`. |
-| `update` / `delete` | Return whether a row was affected. FTS must stay in sync (typically via SQLite triggers on the schema). |
-| `settle(timeout=120)` | Always `True`. Row and FTS index land in one transaction, so a fact is searchable as soon as `add()` returns. Hosted backends would need a real wait. |
+| `update` / `delete` | Return whether a row changed. FTS sync via DB triggers (see [db.md](../db.md)). |
 
-## FTS5 query helper
+Select backend with `PAPERCLIP_SEMANTIC_STORE=sqlite` (default).
 
-`_fts_query(text)` is also used by `SqliteEpisodeStore.search`. User text is not a valid FTS5 `MATCH` string.
+## FTS query helper — `_fts_query(text)`
 
-It:
+Shared with `SqliteEpisodeStore.search`.
 
-1. **Lowercases** the text. FTS5 operators (`AND` / `OR` / `NOT` / `NEAR`) are uppercase only. Lowercasing stops `"Alex and Bob"` from becoming a boolean expression.
-2. Tokenizes with `[^\W_]{2,}` — Unicode alphanumeric, **excluding underscore**. That matches unicode61 (underscore is a separator). `paper_clip` is two terms in the index and must be two terms in the query.
+1. Lowercase input.
+2. Tokens: `[a-zA-Z0-9]{2,}` (ASCII alphanumeric, length ≥ 2).
+3. Dedupe preserving order; join with ` OR ` for FTS5 `MATCH`.
 
-   An ASCII-only `[a-zA-Z0-9]` used to:
-   - Truncate accented names (`Müller` → `ller`) → silent misses.
-   - Drop non-Latin scripts to `""`. Empty query is **not** a no-op in episode search: it falls back to **recent** episodes, so a query about `Сергей` could inject unrelated English memory.
+If no tokens, returns `""`. **Facts:** no hits. **Episodes:** empty query falls back to `recent()` — see [episodic.md](episodic.md).
 
-3. Dedupes tokens (order preserved) and joins with ` OR `.
-4. **CJK / Japanese prefix:** if a token contains Hiragana, Katakana, or CJK ideographs, it becomes `token*`. unicode61 does not segment those scripts, so a whole run can be one indexed term and an exact name inside it never hits. Prefix is applied **only** to those tokens. Prefixing every token would make `car` match `carpet`.
+## Supabase — `SupabaseFactStore`
 
-If no tokens remain, returns `""`. Callers decide what that means: facts return no hits; episodes return recent.
+Code: `paperclip/memory/semantic/supabase_store.py`
+
+Same `add` / `search` surface as SQLite facts, but storage is Supabase `rag_chunks` + `match_chunks` RPC (pgvector). Embeddings via OpenAI `text-embedding-3-small` by default (`OPENAI_EMBED_MODEL` override).
+
+Enable:
+
+```bash
+pip install 'paperclip[supabase]'   # supabase client + deps as defined in project extras
+PAPERCLIP_SEMANTIC_STORE=supabase
+SUPABASE_URL=...
+SUPABASE_SERVICE_KEY=...
+OPENAI_API_KEY=...   # embeddings only
+```
+
+`Memory._make_fact_store` chooses this when `settings.semantic_store == "supabase"`.
+
+| Method | Behavior |
+| --- | --- |
+| `add` | Upsert row with `chunk_id`, `source`=subject, `text`, `embedding` of `subject: content` |
+| `search` | RPC `match_chunks` with query embedding; same `[source] text` format |
+
+Use when phrasing diverges from stored wording; for hundreds of personal facts FTS is usually enough.

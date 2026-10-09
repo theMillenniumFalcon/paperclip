@@ -1,4 +1,4 @@
-"""Dated episodes in SQLite. See docs/memory/episodic.md."""
+"""Dated episodes + FTS. See docs/memory/episodic.md."""
 
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ class SqliteEpisodeStore:
         self.conn.commit()
 
     def search(self, query: str, top_k: int = 3) -> list[str]:
-        """FTS rank, then most recent among matches. Empty query → recent()."""
         fts = _fts_query(query)
         if not fts:
             return self.recent(top_k)

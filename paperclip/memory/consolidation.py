@@ -1,4 +1,4 @@
-"""Distill chat_log into facts + one episode after N exchanges. See docs/memory/consolidation.md."""
+"""Chat log → facts + episode batch job. See docs/memory/consolidation.md."""
 
 from __future__ import annotations
 
@@ -33,23 +33,20 @@ def consolidate_if_due(
     facts: SqliteFactStore,
     episodes: SqliteEpisodeStore,
 ) -> int:
-    """Returns how many new facts were written (0 = not due, empty, or LLM failed)."""
     rows = conn.execute(
         "SELECT id, role, content FROM chat_log WHERE consolidated = 0 ORDER BY id"
     ).fetchall()
-    if len(rows) < every_n * 2:  # each exchange = user + assistant
+    if len(rows) < every_n * 2:
         return 0
 
     log = "\n".join(f"{r['role']}: {r['content']}" for r in rows)
     try:
         response = client.messages.create(
             model=small_model,
-            max_tokens=4096,
+            max_tokens=600,
             messages=[{"role": "user", "content": SUMMARIZER_PROMPT.format(log=log)}],
         )
         text = "".join(b.text for b in response.content if b.type == "text")
-        if "{" not in text:
-            return 0
         distilled = json.loads(text[text.index("{") : text.rindex("}") + 1])
     except Exception:
         return 0

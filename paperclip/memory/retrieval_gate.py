@@ -1,4 +1,4 @@
-"""Decide whether this turn should search long-term memory. See docs/memory/retrieval-gate.md."""
+"""Whether a turn should search memory. See docs/memory/retrieval-gate.md."""
 
 from __future__ import annotations
 
@@ -23,16 +23,13 @@ User message: {message}"""
 def should_retrieve(
     client: anthropic.Anthropic, small_model: str, message: str
 ) -> tuple[bool, str, str]:
-    """Returns (retrieve?, search_query, reason). Errors fail open (retrieve)."""
     try:
         response = client.messages.create(
             model=small_model,
-            max_tokens=600,
+            max_tokens=100,
             messages=[{"role": "user", "content": GATE_PROMPT.format(message=message)}],
         )
         text = "".join(b.text for b in response.content if b.type == "text")
-        if "{" not in text:
-            return True, message, "gate returned no JSON — failing open"
         decision = json.loads(text[text.index("{") : text.rindex("}") + 1])
         return bool(decision.get("retrieve")), decision.get("query", message), decision.get("reason", "")
     except Exception as exc:

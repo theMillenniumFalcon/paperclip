@@ -36,6 +36,15 @@ class Settings:
         default_factory=lambda: os.getenv("PAPERCLIP_GH_TOOL", "").lower() in ("1", "true", "yes")
     )
     home: Path = field(default_factory=lambda: Path(os.getenv("PAPERCLIP_HOME", ".paperclip")))
+    semantic_store: str = field(
+        default_factory=lambda: os.getenv("PAPERCLIP_SEMANTIC_STORE", "sqlite").strip().lower()
+    )
+    retrieval_top_k: int = field(
+        default_factory=lambda: int(os.getenv("PAPERCLIP_RETRIEVAL_TOP_K", "4"))
+    )
+    consolidate_every: int = field(
+        default_factory=lambda: int(os.getenv("PAPERCLIP_CONSOLIDATE_EVERY", "5"))
+    )
 
     def ensure_home(self) -> Path:
         self.home.mkdir(parents=True, exist_ok=True)

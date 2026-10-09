@@ -1,71 +1,80 @@
-# Local memory
+# Memory
 
 Code: `paperclip/memory/`
 
-This package is **on-disk memory for one assistant**: durable facts, dated events, **skills** (how to act), a cheap model that decides whether to search, and another that periodically distills chat into those stores.
+Local memory for one assistant: **facts**, **dated episodes**, **skills**, a retrieval **gate**, and **consolidation** from `chat_log`. Docs are the reference for each module (one-line docstrings point here).
 
-It is **not** hosted [paperclip Memory](https://paperclip.pages.dev) (the MCP product described in `skills/paperclip-memory/SKILL.md`). Those two stores do not sync.
-
-In this checkout the package is **not wired into the loop yet**. Nothing in `main.py` or `paperclip/loop/` imports it. Tables are created by [`paperclip/db.py`](../db.md) in `state.db`.
+Not the hosted [Paperclip Memory](https://paperclip.pages.dev) MCP product — that store does not sync with `state.db`.
 
 ## Layout
 
-| Path | Role |
+| Path | Doc | Role |
+| --- | --- | --- |
+| `__init__.py` | (this page, `Memory`) | Facade wiring stores + gate + consolidation |
+| `retrieval_gate.py` | [retrieval-gate.md](retrieval-gate.md) | Cheap LLM: search memory this turn? |
+| `consolidation.py` | [consolidation.md](consolidation.md) | Cheap LLM: after N exchanges → facts + episode |
+| `semantic/store.py` | [semantic.md](semantic.md) | SQLite facts + FTS5 |
+| `semantic/supabase_store.py` | [semantic.md#supabase](semantic.md#supabase) | Optional vector backend |
+| `episodic/store.py` | [episodic.md](episodic.md) | SQLite episodes + FTS |
+| `procedural/loader.py` | [procedural.md](procedural.md) | `SKILL.md` match |
+| `procedural/installer.py` | [procedural.md](procedural.md) | Install remote skill |
+
+Schema: [Database](../db.md) (`facts`, `episodes`, `chat_log`, FTS tables).
+
+## Three stores
+
+| Kind | Question | Store |
+| --- | --- | --- |
+| Semantic | What do I know? | `SqliteFactStore` or `SupabaseFactStore` |
+| Episodic | What happened, when? | `SqliteEpisodeStore` |
+| Procedural | How should I act? | `SkillLoader` (`SKILL.md`) |
+
+Default search is **FTS5 / BM25** on SQLite (no embeddings unless Supabase backend).
+
+## Settings (`paperclip/config.py`)
+
+| Env | Default | Used for |
+| --- | --- | --- |
+| `PAPERCLIP_HOME` | `.paperclip` | `MEMORY.md`, `skills/`, `state.db` |
+| `PAPERCLIP_SMALL_MODEL` | (provider default) | Gate + consolidation |
+| `PAPERCLIP_SEMANTIC_STORE` | `sqlite` | `supabase` → `SupabaseFactStore` |
+| `PAPERCLIP_RETRIEVAL_TOP_K` | `4` | Fact search top-k |
+| `PAPERCLIP_CONSOLIDATE_EVERY` | `5` | Exchanges before consolidation (`×2` chat_log rows) |
+
+Supabase also needs `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and `OPENAI_API_KEY` (embeddings). See [semantic.md#supabase](semantic.md#supabase).
+
+## `Memory` facade
+
+Constructed with `(conn, settings, client)` where `client` is Anthropic-shaped (`get_client`).
+
+| Method | Behavior |
 | --- | --- |
-| `retrieval_gate.py` | Small LLM: should this turn search memory? |
-| `consolidation.py` | Small LLM: after N exchanges, write facts + one episode |
-| `semantic/store.py` | SQLite facts + shared FTS5 query helper |
-| `episodic/store.py` | SQLite dated episodes |
-| `episodic/notion_store.py` | Same episode API against a Notion database |
-| `procedural/` | Skills: load, match, install, export |
+| `gated_retrieve(message, notify?)` | `should_retrieve` → if yes, `facts.search` + `episodes.search`; optional `notify("gate", …)` |
+| `matching_skills(message)` | `SkillLoader.match` → markdown sections for the prompt |
+| `log_chat(user, reply, session_id, source)` | Two `chat_log` rows, commit |
+| `session_history(session_id)` | `(user, assistant)` pairs in order |
+| `list_sessions()` | Per `session_id`: title, counts, timestamps |
+| `export_markdown()` | Write `PAPERCLIP_HOME/MEMORY.md` from SQL |
+| `maybe_consolidate(notify?)` | `consolidate_if_due`; optional `notify("consolidation", …)` |
 
-Empty `__init__.py` files only mark packages. There is no facade like `from paperclip.memory import Memory`.
+Skill dirs: repo `skills/` and `{home}/skills`.
 
-## Two kinds of memory
-
-| Kind | Question | Example | Store |
-| --- | --- | --- | --- |
-| Semantic | What do I know? | Alex prefers morning meetings | `SqliteFactStore` |
-| Episodic | What happened, and when? | 2026-07-10: planned the Acme demo with Alex | `SqliteEpisodeStore` or `NotionEpisodeStore` |
-| Procedural | How should I do this job? | Calendar skill: call `create_event` with these defaults | `SkillLoader` (`SKILL.md` files) |
-
-Search is **ranked keywords (SQLite FTS5 / BM25)**, not embeddings. For one user’s facts that is fast, local, and inspectable with `sqlite3`.
-
-## Two small-model jobs
-
-1. **[Retrieval gate](retrieval-gate.md)** — before touching any store: does this message need memory?
-2. **[Consolidation](consolidation.md)** — after enough chat: extract facts + one episode.
-
-Do not search every turn (latency + irrelevant memories biasing the answer). Do not summarize every message (noise + cost).
+## Turn flow
 
 ```
 User message
-    → should_retrieve()           # cheap LLM → retrieve? + search query
-    → if yes: facts.search() + episodes.search()
-    → inject hits into the prompt
-    → persist the turn in chat_log
-    → consolidate_if_due()        # only after N exchanges
-         facts + one episode, then consolidated = 1
+  → gated_retrieve()     # gate LLM → maybe FTS search
+  → matching_skills()    # optional procedural injection
+  → (agent responds)
+  → log_chat()
+  → maybe_consolidate()
+  → export_markdown()    # if wired by the app
 ```
-
-## Intended loop wiring (not implemented here)
-
-1. On each user turn, call `should_retrieve` with the provider’s **small** model (see `paperclip/loop/models.py`: `small_model` is documented as gate + consolidation).
-2. If retrieve is true, search both stores with the gate’s query and put results in the prompt as relevant memory.
-3. Append user + assistant rows to `chat_log`.
-4. After the turn, call `consolidate_if_due(..., every_n=...)`.
-5. Dashboard / `manage_memory` tool can CRUD facts and episodes (`list` / `update` / `delete` / `search_with_ids`).
-
-`Settings` in this snapshot has no `small_model` or memory paths yet.
-
-## Schema
-
-`facts`, `episodes`, `chat_log`, and FTS tables — see [Database](../db.md). FTS uses the default **unicode61** tokenizer; query sanitization: [semantic store](semantic.md#fts5-query-helper).
 
 ## Pages
 
 - [Retrieval gate](retrieval-gate.md)
 - [Consolidation](consolidation.md)
 - [Semantic store](semantic.md)
-- [Episodic store](episodic.md) (SQLite + Notion)
-- [Procedural memory](procedural.md) (skills)
+- [Episodic store](episodic.md)
+- [Procedural memory](procedural.md)

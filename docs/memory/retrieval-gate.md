@@ -2,28 +2,29 @@
 
 Code: `paperclip/memory/retrieval_gate.py`
 
-A cheap classifier so the agent does not hit SQLite (or inject stale facts) on every turn. Default-on retrieval is slower **and** it biases answers when memories are irrelevant.
+Cheap classifier so the agent does not search SQLite on every turn (latency + irrelevant memories biasing replies).
 
 ## API
 
 ```python
 should_retrieve(client, small_model, message) -> tuple[bool, str, str]
-# (retrieve?, search_query, reason)
 ```
 
-`client` must speak Anthropic’s Messages shape (`messages.create`, content blocks), same as the rest of Paperclip.
+`(retrieve?, search_query, reason)`. `client` must support Anthropic `messages.create` (same as `paperclip/loop`).
 
 ## Behavior
 
-1. Sends `GATE_PROMPT` with the user message.
-2. Expects **JSON only**: `{"retrieve": true/false, "query": "...", "reason": "<5 words>"}`.
-3. Parses from the first `{` to the last `}` in text blocks.
-4. Prompt policy: math, general knowledge, small talk, self-contained requests → `false`. User’s life, people, plans, history → `true`, plus search keywords (not necessarily the raw message).
+1. User message embedded in `GATE_PROMPT`.
+2. Expect JSON only: `{"retrieve": bool, "query": "...", "reason": "<short>"}`.
+3. Parse substring from first `{` to last `}` in text blocks.
+4. Policy in prompt: general knowledge / math / small talk → `false`; user-specific life / people / plans → `true` with search keywords.
 
-`max_tokens=600`. Reasoning models spend a thinking block *before* JSON; a tiny budget truncates the actual answer.
+`max_tokens=100`.
 
 ## Fail open
 
-If the call throws, or the model returns no `{`, the function **retrieves anyway**, using the original message as the query. A stale memory is preferred to a missed one.
+On any error or missing `{`, return `(True, message, reason)` — retrieve using the **original message** as the query.
 
-That interacts with provider setup: if `small_model` is an id the current provider does not serve, the gate errors every turn, fails open, and **looks healthy while always retrieving**. `paperclip/loop/models.py` drops leaked Anthropic small-model ids when switching providers for this reason.
+If `small_model` is wrong for the active provider, the gate may error every turn and **always retrieve** while still looking “healthy.” Use a valid `PAPERCLIP_SMALL_MODEL` for your [provider](../loop/models.md).
+
+Used by `Memory.gated_retrieve` before `facts.search` and `episodes.search`.

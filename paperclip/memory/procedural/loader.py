@@ -1,4 +1,4 @@
-"""Parse and match SKILL.md files. See docs/memory/procedural.md."""
+"""SKILL.md scan and match. See docs/memory/procedural.md."""
 
 from __future__ import annotations
 
@@ -20,17 +20,17 @@ def _parse_text(text: str, path: Path) -> Skill | None:
     if not match:
         return None
     front, body = match.groups()
-    fields = {
-        k.strip(): v.strip().strip("'\"")
+    fields = dict(
+        (k.strip(), v.strip().strip("'\""))
         for k, _, v in (line.partition(":") for line in front.splitlines() if ":" in line)
-    }
+    )
     if "name" not in fields or "description" not in fields:
         return None
     return Skill(fields["name"], fields["description"], body.strip(), path)
 
 
 def _parse(path: Path) -> Skill | None:
-    return _parse_text(path.read_text(encoding="utf-8"), path)
+    return _parse_text(path.read_text(), path)
 
 
 class SkillLoader:

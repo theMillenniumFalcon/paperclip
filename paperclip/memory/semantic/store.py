@@ -1,30 +1,14 @@
-"""Durable facts in SQLite FTS5. Query helper is shared with episodic search. See docs/memory/semantic.md."""
+"""SQLite facts + FTS5. See docs/memory/semantic.md."""
 
 from __future__ import annotations
 
 import re
 import sqlite3
 
-# unicode61 does not segment these scripts; prefix-match those tokens only.
-_UNSEGMENTED = re.compile(
-    "["
-    "\u3040-\u309f"  # Hiragana
-    "\u30a0-\u30ff"  # Katakana
-    "\u3400-\u4dbf"  # CJK Unified Ideographs Extension A
-    "\u4e00-\u9fff"  # CJK Unified Ideographs
-    "\uf900-\ufaff"  # CJK Compatibility Ideographs
-    "]"
-)
-
 
 def _fts_query(text: str) -> str:
-    """Sanitize user text into `word OR word` for FTS5 MATCH (unicode61)."""
-    words = re.findall(r"[^\W_]{2,}", text.lower())
-    if not words:
-        return ""
-    return " OR ".join(
-        f"{w}*" if _UNSEGMENTED.search(w) else w for w in dict.fromkeys(words)
-    )
+    words = re.findall(r"[a-zA-Z0-9]{2,}", text.lower())
+    return " OR ".join(dict.fromkeys(words)) if words else ""
 
 
 class SqliteFactStore:
@@ -82,7 +66,3 @@ class SqliteFactStore:
         cur = self.conn.execute("DELETE FROM facts WHERE id=?", (fact_id,))
         self.conn.commit()
         return cur.rowcount > 0
-
-    def settle(self, timeout: float = 120.0) -> bool:
-        """SQLite is searchable as soon as add() returns."""
-        return True
