@@ -1,4 +1,4 @@
-"""SQLite state.db schema and connect(). See docs/db.md."""
+"""SQLite state.db. See docs/db.md."""
 
 from __future__ import annotations
 
@@ -71,9 +71,6 @@ def _migrate(conn: sqlite3.Connection) -> None:
         conn.commit()
     if "source" not in cols:
         conn.execute("ALTER TABLE chat_log ADD COLUMN source TEXT DEFAULT 'cli'")
-        conn.commit()
-    if "meta" not in cols:
-        conn.execute("ALTER TABLE chat_log ADD COLUMN meta TEXT")
         conn.commit()
 
 

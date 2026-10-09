@@ -39,7 +39,7 @@ Default search is **FTS5 / BM25** on SQLite (no embeddings unless Supabase backe
 | `PAPERCLIP_SMALL_MODEL` | (provider default) | Gate + consolidation |
 | `PAPERCLIP_SEMANTIC_STORE` | `sqlite` | `supabase` → `SupabaseFactStore` |
 | `PAPERCLIP_RETRIEVAL_TOP_K` | `4` | Fact search top-k |
-| `PAPERCLIP_CONSOLIDATE_EVERY` | `5` | Exchanges before consolidation (`×2` chat_log rows) |
+| `PAPERCLIP_CONSOLIDATE_EVERY` | `6` | Exchanges before consolidation (`×2` chat_log rows) |
 
 Supabase also needs `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and `OPENAI_API_KEY` (embeddings). See [semantic.md#supabase](semantic.md#supabase).
 

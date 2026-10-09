@@ -1,7 +1,4 @@
-"""Configuration — every knob is an env var, documented in .env.example.
-
-No settings framework: a dataclass read once at startup.
-"""
+"""Env-backed settings. See docs/config.md."""
 
 from __future__ import annotations
 
@@ -9,50 +6,33 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 
-
-def _load_env() -> str:
-    path = find_dotenv(usecwd=True)
-    if path:
-        load_dotenv(path)
-    return path
-
-
-DOTENV_PATH = _load_env()
+load_dotenv()
 
 
 @dataclass
 class Settings:
-    # --- LLM: pick a provider, set its key. See paperclip/loop/models.py PROVIDERS.
     provider: str = field(default_factory=lambda: os.getenv("PAPERCLIP_PROVIDER", "anthropic"))
-    # Explicit overrides (optional): key, endpoint, and model ids. Left empty,
-    # the provider's own key env var and default models are used.
     api_key: str = field(default_factory=lambda: os.getenv("PAPERCLIP_API_KEY", ""))
     base_url: str | None = field(default_factory=lambda: os.getenv("PAPERCLIP_BASE_URL") or None)
     model: str = field(default_factory=lambda: os.getenv("PAPERCLIP_MODEL", ""))
     small_model: str = field(default_factory=lambda: os.getenv("PAPERCLIP_SMALL_MODEL", ""))
-    gh_tool: bool = field(
-        default_factory=lambda: os.getenv("PAPERCLIP_GH_TOOL", "").lower() in ("1", "true", "yes")
+    home: Path = field(default_factory=lambda: Path(os.getenv("PAPERCLIP_HOME", ".paperclip")))
+    max_iterations: int = field(default_factory=lambda: int(os.getenv("PAPERCLIP_MAX_ITERATIONS", "10")))
+    max_tokens: int = field(default_factory=lambda: int(os.getenv("PAPERCLIP_MAX_TOKENS", "2048")))
+    consolidate_every: int = field(default_factory=lambda: int(os.getenv("PAPERCLIP_CONSOLIDATE_EVERY", "6")))
+    retrieval_top_k: int = field(default_factory=lambda: int(os.getenv("PAPERCLIP_RETRIEVAL_TOP_K", "4")))
+    semantic_store: str = field(default_factory=lambda: os.getenv("PAPERCLIP_SEMANTIC_STORE", "sqlite"))
+    apple_calendar: bool = field(
+        default_factory=lambda: os.getenv("PAPERCLIP_APPLE_CALENDAR", "") in ("1", "true", "yes")
     )
     apple_tools: bool = field(
-        default_factory=lambda: os.getenv("PAPERCLIP_APPLE_TOOLS", "").lower() in ("1", "true", "yes")
+        default_factory=lambda: os.getenv("PAPERCLIP_APPLE_TOOLS", "") in ("1", "true", "yes")
     )
-    apple_calendar: bool = field(
-        default_factory=lambda: os.getenv("PAPERCLIP_APPLE_CALENDAR", "").lower() in ("1", "true", "yes")
-    )
-    home: Path = field(default_factory=lambda: Path(os.getenv("PAPERCLIP_HOME", ".paperclip")))
-    semantic_store: str = field(
-        default_factory=lambda: os.getenv("PAPERCLIP_SEMANTIC_STORE", "sqlite").strip().lower()
-    )
-    retrieval_top_k: int = field(
-        default_factory=lambda: int(os.getenv("PAPERCLIP_RETRIEVAL_TOP_K", "4"))
-    )
-    consolidate_every: int = field(
-        default_factory=lambda: int(os.getenv("PAPERCLIP_CONSOLIDATE_EVERY", "5"))
-    )
-    otel_endpoint: str | None = field(
-        default_factory=lambda: os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or None
+    telegram_token: str = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN", ""))
+    otel_endpoint: str = field(
+        default_factory=lambda: os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
     )
 
     def ensure_home(self) -> Path:

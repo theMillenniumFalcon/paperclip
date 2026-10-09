@@ -78,15 +78,12 @@ Raw messages before/after consolidation. `consolidation.py` reads rows with `con
 | `session_id` | TEXT | default `'default'`; groups a conversation |
 | `created_at` | TEXT | default `datetime('now')` |
 
-Added by **`_migrate`** on older DBs (not in initial `CREATE TABLE` script):
+`session_id` is in the `CREATE TABLE`. Older databases get it from `_migrate` if the column is missing.
 
-| Column | Type | Notes |
-| --- | --- | --- |
-| `source` | TEXT | default `'cli'` — gateway: cli / voice / telegram / dashboard |
-| `meta` | TEXT | JSON on assistant rows — gate, latency, tools, etc. |
+`source` is **not** in the `CREATE TABLE`. `_migrate` adds it when missing: `TEXT DEFAULT 'cli'` (cli, voice, telegram, dashboard, brief).
 
 ---
 
-## Migrations
+## `connect(home, check_same_thread=True)`
 
-`_migrate` is additive only: `PRAGMA table_info(chat_log)` and `ALTER TABLE ... ADD COLUMN` for `session_id`, `source`, `meta` if missing. Safe to run on every connect.
+Opens `{home}/state.db`, `row_factory=sqlite3.Row`, `PRAGMA busy_timeout=3000`, runs `SCHEMA`, then `_migrate`. `check_same_thread=False` is for the dashboard’s shared connection (guarded by a lock).
