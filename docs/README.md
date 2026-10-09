@@ -9,3 +9,4 @@
 - [Connect](connect.md) — `paperclip connect` browser sign-in (`paperclip/connect.py`)
 - [Integrations](integrations.md) — connection status types (`paperclip/integrations.py`)
 - [Gateway](gateway/README.md) — terminal REPL (`paperclip/gateway/`)
+- [Ops](ops/README.md) — dashboard, traces, brief, release gate (`paperclip/ops/`)

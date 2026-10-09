@@ -51,6 +51,9 @@ class Settings:
     consolidate_every: int = field(
         default_factory=lambda: int(os.getenv("PAPERCLIP_CONSOLIDATE_EVERY", "5"))
     )
+    otel_endpoint: str | None = field(
+        default_factory=lambda: os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or None
+    )
 
     def ensure_home(self) -> Path:
         self.home.mkdir(parents=True, exist_ok=True)
