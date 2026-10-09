@@ -2,31 +2,25 @@
 
 Code: `evals/helpers.py`
 
-Shared plumbing for offline and (future) live evals.
-
 ## `HAS_KEY`
 
-`True` when the **active** provider (`PAPERCLIP_PROVIDER`) has a key: `PAPERCLIP_API_KEY` or that provider’s `key_env` from `paperclip/loop/models.py`. Use `@pytest.mark.skipif(not HAS_KEY, ...)` for tests that call a real model.
+`True` when `ANTHROPIC_API_KEY` is set. Live dataset cases and the judge suite skip otherwise. This is not “any provider key.”
 
-## Anthropic-shaped fakes
+## Fakes
 
 | Helper | Builds |
 | --- | --- |
-| `text_block(text)` | `type="text"` content block |
-| `tool_block(name, args, call_id=...)` | `type="tool_use"` block |
-| `response(blocks, stop_reason=...)` | Full fake `messages.create` return value |
+| `text_block(text)` | `type="text"` |
+| `tool_block(name, args, call_id="tu_1")` | `type="tool_use"` |
+| `response(blocks, stop_reason="end_turn")` | Object with `stop_reason`, zero `usage`, `content` |
 
-## `ScriptedClient`
+## `ScriptedClient(script)`
 
-Takes a list of those responses. Each `messages.create` pops the next item — a fixed “model” for loop tests without network.
+`messages.create` pops the next scripted response. No network. No `messages.stream`.
 
 ## `make_paperclip(home, client=None, **settings_overrides)`
 
-Builds `paperclip.app.Paperclip` with an isolated `home` directory.
+`Paperclip(settings=Settings(home=home, ...), client=client)`.
 
-- Pass `client=ScriptedClient([...])` for offline runs. If there is no real `api_key`, sets `api_key="offline"` so `get_client` is never called.
-- `settings_overrides` become `Settings(...)` fields (e.g. `gh_tool=True`).
-
-`load_dotenv()` runs at import, so defaults can leak from the developer’s `.env`. For optional Settings flags that change what a turn does (`apple_calendar`, `google_calendar`, `apple_tools`, `graph_workflows`), `make_paperclip` **defaults them to `False`** when those fields exist on `Settings`, so tests stay deterministic unless they opt in.
-
-Only fields that exist on `Settings` are pinned — unknown names on other branches are skipped.
+- `apple_calendar` defaults to `False` so a developer `.env` cannot sync tests into Calendar.app.
+- If `client` is set and `settings.api_key` is empty, `api_key` is set to `"offline"` so a scripted run does not require a real key. `Paperclip` still uses the passed `client` and does not call `get_client`.

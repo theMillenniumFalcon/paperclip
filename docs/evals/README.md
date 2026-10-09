@@ -2,30 +2,30 @@
 
 Code: `evals/`
 
-Tests for Paperclip behavior. **Deterministic** suites mock subprocesses and models so CI needs no `gh`, GitHub login, or API keys.
+Pytest suites. Deterministic tests use a scripted model and do not need an API key. Live and judge tests run only when `ANTHROPIC_API_KEY` is set.
 
-The package is not installed as an editable wheel yet (setuptools sees multiple top-level folders). Pytest adds the repo root to `PYTHONPATH` via `pyproject.toml` — run from the repo root.
+`conftest.py` puts the repo root on `sys.path` so `import paperclip` and `import evals` work from `pytest evals`.
 
 ## Run
 
 ```bash
-uv run pytest evals/deterministic/test_gh_tool.py -q
+pytest evals/deterministic -q
+pytest evals/judge -q
 ```
 
-All deterministic tests under `evals/deterministic/`:
-
-```bash
-uv run pytest evals/deterministic/ -q
-```
+The release gate runs these two folders. See [release gate](../ops/release-gate.md).
 
 ## Layout
 
-| Path | Role |
-| --- | --- |
-| `helpers.py` | Fake LLM client, `make_paperclip`, `HAS_KEY` for live evals |
-| `deterministic/test_gh_tool.py` | Offline tests for read-only `github_read` |
+| Path | Doc | Role |
+| --- | --- | --- |
+| `helpers.py` | [helpers.md](helpers.md) | `ScriptedClient`, `make_paperclip`, `HAS_KEY` |
+| `dataset.jsonl` | [deterministic.md](deterministic.md) | Live tool-trigger cases |
+| `deterministic/` | [deterministic.md](deterministic.md) | Offline assertions plus the dataset |
+| `judge/` | [judge.md](judge.md) | DeepEval scores on real replies |
 
 ## Pages
 
 - [Helpers](helpers.md)
-- [GitHub tool (deterministic)](deterministic/gh-tool.md)
+- [Deterministic](deterministic.md)
+- [Judge](judge.md)

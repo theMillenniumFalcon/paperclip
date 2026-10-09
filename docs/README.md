@@ -2,7 +2,7 @@
 
 - [Memory](memory/README.md) — local long-term memory (`paperclip/memory/`)
 - [Tools](tools/README.md) — functions the model can call (`paperclip/tools/`)
-- [Evals](evals/README.md) — deterministic and live tests (`evals/`)
+- [Evals](evals/README.md) — deterministic tests and LLM judge (`evals/`)
 - [Database](db.md) — `state.db` schema (`paperclip/db.py`)
 - [Config](config.md) — env settings (`paperclip/config.py`)
 - [App](app.md) — one turn (`paperclip/app.py`)

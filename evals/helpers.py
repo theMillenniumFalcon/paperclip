@@ -1,23 +1,12 @@
-"""Eval plumbing: fake client and make_paperclip. See docs/evals/helpers.md."""
+"""Offline and live eval helpers. See docs/evals/helpers.md."""
 
 from __future__ import annotations
 
-import dataclasses
 import os
 from pathlib import Path
 from types import SimpleNamespace
 
-
-def _has_key() -> bool:
-    from paperclip.config import load_settings
-    from paperclip.loop.models import PROVIDERS
-
-    settings = load_settings()
-    provider = PROVIDERS.get(settings.provider)
-    return bool(settings.api_key or (provider and os.getenv(provider.key_env)))
-
-
-HAS_KEY = _has_key()
+HAS_KEY = bool(os.getenv("ANTHROPIC_API_KEY"))
 
 
 def text_block(text: str):
@@ -49,10 +38,7 @@ def make_paperclip(home: Path, client=None, **settings_overrides):
     from paperclip.app import Paperclip
     from paperclip.config import Settings
 
-    known = {f.name for f in dataclasses.fields(Settings)}
-    for switch in ("apple_calendar", "google_calendar", "apple_tools", "graph_workflows"):
-        if switch in known:
-            settings_overrides.setdefault(switch, False)
+    settings_overrides.setdefault("apple_calendar", False)
     settings = Settings(home=home, **settings_overrides)
     if client is not None and not settings.api_key:
         settings.api_key = "offline"
