@@ -2,38 +2,12 @@
 
 from __future__ import annotations
 
-import sqlite3
-
 from rich.console import Console
 from rich.panel import Panel
-from rich.text import Text
 
 from paperclip.app import Paperclip
 
 console = Console()
-
-
-def _memory_snapshot(conn: sqlite3.Connection) -> str:
-    fact_count = conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0]
-    facts = conn.execute("SELECT subject, content FROM facts ORDER BY id DESC LIMIT 8").fetchall()
-    episode_count = conn.execute("SELECT COUNT(*) FROM episodes").fetchone()[0]
-    episodes = conn.execute(
-        "SELECT happened_at, summary FROM episodes ORDER BY happened_at DESC, id DESC LIMIT 5"
-    ).fetchall()
-    pending = conn.execute("SELECT COUNT(*) FROM chat_log WHERE consolidated = 0").fetchone()[0]
-
-    lines = [f"Semantic facts ({fact_count})"]
-    lines.extend(f"- [{row['subject']}] {row['content']}" for row in facts)
-    if not facts:
-        lines.append("- none yet")
-
-    lines.extend(["", f"Recent episodes ({episode_count})"])
-    lines.extend(f"- {row['happened_at']} - {row['summary']}" for row in episodes)
-    if not episodes:
-        lines.append("- none yet")
-
-    lines.extend(["", f"Unconsolidated chat messages: {pending}"])
-    return "\n".join(lines)
 
 
 def _observer(kind: str, event: dict) -> None:
@@ -51,7 +25,7 @@ def main() -> None:
     console.print(Panel.fit(
         "[bold]Paperclip[/bold] — local, yours, transparent.\n"
         f"home: {paperclip.settings.home.resolve()}   model: {paperclip.settings.model}\n"
-        "Commands: /memory · /quit",
+        "Ctrl-D or /quit to exit.",
         border_style="cyan",
     ))
     while True:
@@ -63,18 +37,9 @@ def main() -> None:
             continue
         if user_message in ("/quit", "/exit"):
             break
-        if user_message == "/memory":
-            console.print(
-                Panel(
-                    Text(_memory_snapshot(paperclip.conn)),
-                    title="Memory snapshot",
-                    border_style="cyan",
-                )
-            )
-            continue
         result = paperclip.respond(user_message, observer=_observer, source="cli")
         console.print(f"[bold green]paperclip ›[/bold green] {result.reply}\n")
-    console.print("[dim]bye — your memory stays in state.db under home[/dim]")
+    console.print("[dim]bye — your memory stays in state.db[/dim]")
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ class Settings:
     api_key: str = field(default_factory=lambda: os.getenv("PAPERCLIP_API_KEY", ""))
     base_url: str | None = field(default_factory=lambda: os.getenv("PAPERCLIP_BASE_URL") or None)
     model: str = field(default_factory=lambda: os.getenv("PAPERCLIP_MODEL", ""))
+    small_model: str = field(default_factory=lambda: os.getenv("PAPERCLIP_SMALL_MODEL", ""))
     gh_tool: bool = field(
         default_factory=lambda: os.getenv("PAPERCLIP_GH_TOOL", "").lower() in ("1", "true", "yes")
     )

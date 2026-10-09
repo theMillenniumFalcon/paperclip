@@ -2,20 +2,28 @@
 
 Code: `paperclip/gateway/`
 
-A **gateway** only moves text in and out; the loop, memory, and tools do the work. Same idea as Telegram or dashboard chat, with a different transport.
+A **gateway** only moves text (or speech) in and out; the loop, memory, and tools do the work. Same `Paperclip.respond` pipeline as elsewhere, with a different transport.
 
-| Path | Role |
-| --- | --- |
-| `cli.py` | Interactive terminal REPL (`python -m paperclip.gateway.cli` or entry point) |
-| `runner.py` | Async gateways: one thread-owned `Paperclip` per bot |
-| `telegram.py` | Telegram bot (long polling) |
-| `discord.py` | Discord bot (DMs + opt-in channels) |
-| `whatsapp.py` | WhatsApp Cloud API webhook (port 5000) |
+**Docs are the reference for gateway code.** Each module’s one-line docstring points at its page below. Behavior, setup, env vars, and non-obvious engineering notes live in docs—not in comments in the source.
 
-## Pages
+| Path | Doc | Role |
+| --- | --- | --- |
+| `cli.py` | [cli.md](cli.md) | Terminal REPL; shared `_observer` for other gateways |
+| `telegram.py` | [telegram.md](telegram.md) | Telegram bot (long polling) |
+| `voice.py` | [voice.md](voice.md) | Microphone in, TTS out (wake-word or push-to-talk) |
 
-- [CLI](cli.md)
-- [Runner](runner.md)
-- [Telegram](telegram.md)
-- [Discord](discord.md)
-- [WhatsApp](whatsapp.md)
+## Run
+
+```bash
+python -m paperclip.gateway.cli
+python -m paperclip.gateway.telegram
+python -m paperclip.gateway.voice
+```
+
+Voice: optional `[voice]` extra (`faster-whisper`, `sounddevice`, `numpy`). Telegram: `python-telegram-bot` (project dependency).
+
+## Shared pieces
+
+- **`_observer`** (`cli.py`) — `(kind, event)` callback passed to `respond`. Telegram and voice import it so tool/gate/consolidation lines print on the laptop terminal.
+- **`session_id`** — `"terminal"`, `"telegram"`, or `"voice"` so the unified inbox keeps separate threads.
+- **`source`** — `"cli"`, `"telegram"`, or `"voice"` on each `respond` call.

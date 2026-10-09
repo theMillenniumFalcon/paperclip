@@ -2,12 +2,14 @@
 
 Code: `paperclip/loop/`
 
-The agent **turn** (tools + model calls) lives here. Today only **model access** is in the repo; the full `run_loop` may live elsewhere or arrive later.
+Model access and the per-turn agent loop. **Docs are the reference** for these modules (see `docs/gateway/README.md` for the same convention).
 
-| Path | Role |
-| --- | --- |
-| `models.py` | Providers, `get_client`, OpenAI ↔ Anthropic adapter |
+| Path | Doc | Role |
+| --- | --- | --- |
+| `models.py` | [models.md](models.md) | Three providers (`anthropic`, `openai`, `openrouter`), `get_client`, OpenAI adapter |
+| `agent.py` | [agent.md](agent.md) | `run_loop` — reason / tool act / observe until reply |
 
 ## Pages
 
 - [Models](models.md)
+- [Agent loop](agent.md)

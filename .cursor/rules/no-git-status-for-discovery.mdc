@@ -1,0 +1,8 @@
+---
+description: Do not use git status to discover or read files; use the local filesystem
+alwaysApply: true
+---
+
+# Local filesystem over git status
+
+Never use `git status` (or its output) to decide which files exist, which paths to read, or what the codebase looks like. Read from the local filesystem directly (list dirs, glob, read files). Git status can be stale or misleading relative to disk.

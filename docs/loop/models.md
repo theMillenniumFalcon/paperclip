@@ -2,57 +2,54 @@
 
 Code: `paperclip/loop/models.py`
 
-The rest of Paperclip speaks **one dialect**: Anthropic **Messages** (`system`, `messages`, `tools` in; content blocks + `stop_reason` out). Providers plug in as:
+Paperclip speaks one dialect: Anthropic **Messages** (`system`, `messages`, `tools` in; content blocks + `stop_reason` out). Three providers:
 
-| Wire format | Providers |
-| --- | --- |
-| Native Anthropic | `anthropic` |
-| OpenAI `chat.completions` (adapter) | `openai`, `openrouter` |
+| `PAPERCLIP_PROVIDER` | Wire | API key env | Default base URL |
+| --- | --- | --- | --- |
+| `anthropic` | Native Anthropic SDK | `ANTHROPIC_API_KEY` | (default) |
+| `openai` | OpenAI adapter | `OPENAI_API_KEY` | (default) |
+| `openrouter` | OpenAI adapter | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` |
 
-Env: `PAPERCLIP_PROVIDER`, provider key (`ANTHROPIC_API_KEY`, …), optional `PAPERCLIP_MODEL` / `PAPERCLIP_SMALL_MODEL`, `PAPERCLIP_BASE_URL`, `PAPERCLIP_LLM_TIMEOUT` (default 120s).
+Also: `PAPERCLIP_API_KEY` (optional override for the active provider’s key), `PAPERCLIP_MODEL`, `PAPERCLIP_SMALL_MODEL`, `PAPERCLIP_BASE_URL` (overrides provider default URL), `PAPERCLIP_LLM_TIMEOUT` (seconds, default `120`).
 
 ## `Provider` / `PROVIDERS`
 
-Each entry defines:
-
 | Field | Meaning |
 | --- | --- |
-| `kind` | `anthropic` or `openai` (adapter path) |
-| `key_env` | Env var for the API key |
-| `model` | Default **main** loop model |
-| `small_model` | Default **cheap** model (retrieval gate, consolidation) |
-| `flagship` / `fast` | UI switcher defaults (fallback to model / small_model) |
-| `catalog_url` | Model list for Settings picker |
-| `base_url_env` / `endpoints` | Optional regional endpoints + per-region catalogs |
+| `kind` | `anthropic` → `anthropic.Anthropic`; `openai` → `OpenAICompatClient` |
+| `key_env` | Env var for the API key when `PAPERCLIP_API_KEY` is empty |
+| `base_url` | Default OpenAI-compatible base (OpenRouter only unless overridden) |
+| `model` | Default main loop model |
+| `small_model` | Default cheap model (retrieval gate, consolidation) |
 
-Built-ins (defaults may change):
+Default model ids (override with env or `Settings`):
 
-| Name | Main | Small |
+| Provider | Main | Small |
 | --- | --- | --- |
-| `anthropic` | claude-sonnet-5 | claude-haiku-4-5-20251001 |
-| `openai` | gpt-5.5 | gpt-4.1-mini |
-| `openrouter` | nemotron … `:free` | gemma … `:free` |
+| `anthropic` | `claude-sonnet-5` | `claude-haiku-4-5-20251001` |
+| `openai` | `gpt-5.5` | `gpt-4.1-mini` |
+| `openrouter` | `nvidia/nemotron-nano-9b-v2:free` | `google/gemma-3-4b-it:free` |
 
-OpenAI default avoids reasoning-only models that 400 on `chat.completions` without tool support. OpenRouter defaults use `:free` tier (rate-limited).
-
-`KEY_URLS` — where to obtain keys (shown in missing-key errors with absolute `.env` path from `DOTENV_PATH`).
+OpenAI defaults avoid reasoning-only models that reject `chat.completions` without tools. OpenRouter defaults use `:free` tiers (rate-limited).
 
 ## `get_client(settings)`
 
-1. Resolve `PROVIDERS[settings.provider]` or exit.
-2. Load API key (`settings.api_key` or `key_env`), strip whitespace, validate latin-1 (bad paste → clear error).
-3. **Model leak guard:** If `PAPERCLIP_MODEL` / `PAPERCLIP_SMALL_MODEL` in the environment still match `settings.model` / `settings.small_model` but the model **family** belongs to another provider (e.g. Anthropic haiku while provider is OpenAI), clear that field so provider defaults apply. Explicit non-env overrides are kept. Stops the retrieval gate from failing open every turn with “model not found.”
-4. Fill empty `model` / `small_model` from provider defaults.
+1. Look up `PROVIDERS[settings.provider]` or exit with allowed names.
+2. API key: `settings.api_key` or `provider.key_env` from the environment; exit if missing.
+3. Fill empty `settings.model` / `settings.small_model` from the provider row.
+4. `base_url` = `settings.base_url` or `provider.base_url`.
 5. Return `anthropic.Anthropic(...)` or `OpenAICompatClient(...)`.
+
+Hung network calls use `PAPERCLIP_LLM_TIMEOUT` on the client.
 
 ## `OpenAICompatClient`
 
-Implements `.messages.create` and `.messages.stream` in Anthropic shape over OpenAI’s API.
+Exposes `.messages.create` and `.messages.stream` in Anthropic shape over OpenAI `chat.completions`.
 
-**`_to_openai`** — Maps system string, user/assistant strings, assistant tool_use blocks, and tool_result dicts to OpenAI messages. Tools: Anthropic `input_schema` → OpenAI `parameters`. Carries `extra_content` on tool calls for Gemini **thought_signature** round-trip.
+**`_to_openai`** — Maps system, user/assistant strings, assistant `tool_use` blocks, and `tool_result` dicts to OpenAI messages. Tool schemas: Anthropic `input_schema` → OpenAI `parameters`.
 
-**`_call`** — `chat.completions.create`; if the error mentions `max_completion_tokens` vs `max_tokens`, retry with the other key name only for that error.
+**`_call`** — `chat.completions.create`; on failure, retries with `max_tokens` instead of `max_completion_tokens`.
 
-**`_create`** — Empty `choices` (e.g. OpenRouter rate limit body) → `RuntimeError` with body error. Else build text + `tool_use` blocks, map usage to `input_tokens` / `output_tokens`, `stop_reason` `tool_use` or `end_turn`.
+**`_create`** — Builds text + `tool_use` blocks, maps usage to `input_tokens` / `output_tokens`, sets `stop_reason` to `tool_use` or `end_turn`.
 
-**`_OpenAIStream`** — Context manager like Anthropic’s stream: iterate `text_stream`, then `get_final_message()` with reassembled tool calls and usage.
+**`_OpenAIStream`** — Context manager: iterate `text_stream`, then `get_final_message()` with reassembled tool calls and usage.

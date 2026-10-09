@@ -2,48 +2,38 @@
 
 Code: `paperclip/gateway/cli.py`
 
-Terminal chat with Paperclip: read a line, call `Paperclip.respond`, print the reply. Uses **Rich** for panels and dim tool/gate traces.
+Interactive terminal chat: read a line, call `Paperclip.respond`, print the reply. Uses **Rich** (`Console`, `Panel`) for the banner and styled I/O.
 
-Depends on a full `Paperclip` instance (`session`, `conn`, `respond`, …). In a minimal checkout only eval wiring may exist; this module is the intended REPL once the app is assembled.
+## `main()`
 
-## Startup
+1. Construct `Paperclip()` (default settings from `load_settings()`).
+2. Set `paperclip.session.session_id = "terminal"`.
+3. Print a cyan `Panel.fit` banner: product name, resolved `settings.home`, `settings.model`, and exit hint (Ctrl-D or `/quit`).
+4. Loop until EOF, Ctrl+C, or `/quit` / `/exit`:
+   - Skip empty lines.
+   - Otherwise `paperclip.respond(user_message, observer=_observer, source="cli")`.
+   - Print reply as `paperclip ›` (bold green) with a trailing blank line.
+5. On exit, print dim farewell (memory remains in `state.db`).
 
-- `Paperclip()` with default settings.
-- `session.session_id = "terminal"` — separate thread in the unified inbox.
-- Banner: home path, model id, commands `/memory` · `/quit`.
+## `_observer(kind, event)`
 
-## Commands
+Shared by [telegram](telegram.md) and [voice](voice.md). Dim stderr-style traces while the loop runs:
 
-| Input | Action |
-| --- | --- |
-| `/quit`, `/exit` | Leave the loop |
-| `/memory` | Read-only snapshot from `state.db` via `paperclip.conn` |
-| anything else | `respond(message, observer=_observer, source="cli")` |
+| `kind` | `event` fields used | Printed as |
+| --- | --- | --- |
+| `tool` | `tool`, `args`, `output` (first 80 chars) | `tool · name(args) → output…` |
+| `gate` | `decision`, optional `reason` | `gate · decision — reason` |
+| `consolidation` | `new_facts` | `memory · consolidated N fact(s)…` |
 
-Empty lines are skipped. `EOF` / Ctrl+C exits cleanly.
+Unknown kinds are ignored.
 
-## `/memory` snapshot
+## Dependencies
 
-`_memory_snapshot(conn)` — no writes:
-
-- Count + latest 8 facts (`subject`, `content`)
-- Count + latest 5 episodes (`happened_at`, `summary`)
-- Count of `chat_log` rows with `consolidated = 0`
-
-## `_observer`
-
-Live harness output (dim):
-
-| `kind` | Shows |
-| --- | --- |
-| `tool` | name, args, first 80 chars of output |
-| `gate` | retrieval gate decision + reason |
-| `consolidation` | how many facts were written |
+- `paperclip.app.Paperclip`
+- `rich`
 
 ## Run
 
 ```bash
 python -m paperclip.gateway.cli
 ```
-
-Requires `rich` if not already a project dependency.
