@@ -2,7 +2,7 @@
 
 Code: `paperclip/ops/dashboard.py`
 
-Stdlib `ThreadingHTTPServer` bound to **127.0.0.1**. Serves the files in `paperclip/ops/static/` and a JSON API over the same home directory the agent uses (`PAPERCLIP_HOME`, default `.paperclip`).
+Stdlib `ThreadingHTTPServer` bound to **127.0.0.1**. A JSON API (plus one SSE stream) over the same home directory the agent uses (`PAPERCLIP_HOME`, default `.paperclip`). It serves **no frontend**: the UI is a separate Next.js app that calls this API from another origin.
 
 ## Run
 
@@ -10,18 +10,28 @@ Stdlib `ThreadingHTTPServer` bound to **127.0.0.1**. Serves the files in `paperc
 python -m paperclip.ops.dashboard
 ```
 
-Port: `PAPERCLIP_DASHBOARD_PORT`, else `PORT`, else `7777`. If that port is busy, the next ports up to +9 are tried. If `TELEGRAM_BOT_TOKEN` is set, `start_in_background()` from the Telegram gateway is started on a daemon thread.
+Port: `PAPERCLIP_DASHBOARD_PORT`, else `PORT`, else `7777`. If that port is busy, the next ports up to +9 are tried, so the frontend's API base URL must be configurable. Startup prints `Paperclip API → http://localhost:<port>`. If `TELEGRAM_BOT_TOKEN` is set, `start_in_background()` from the Telegram gateway is started on a daemon thread.
 
-## Static files
+## CORS
 
-`STATIC` is `paperclip/ops/static/`.
+The Next.js app runs on a different origin, so the server sends CORS headers, but only for allowlisted origins (never `*`). This matters because `/api/settings` writes API keys and `/api/reveal` opens files on the host.
 
-| Request | Response |
+| Item | Behavior |
 | --- | --- |
-| `/static/<file>` | That file, if it stays inside `STATIC` (no `..`) |
-| anything else that is not `/api/...` | `index.html` |
+| `PAPERCLIP_DASHBOARD_ORIGINS` | Comma-separated allowlist. Default: `http://localhost:3000,http://127.0.0.1:3000` |
+| Matching origin | Response gets `Access-Control-Allow-Origin` (echoing the origin), `Vary: Origin`, `Allow-Methods: GET, POST, OPTIONS`, `Allow-Headers: Content-Type` |
+| Other origins | No CORS headers, so the browser blocks the call |
+| `OPTIONS` (any path) | `204` preflight response with the same CORS headers |
 
-Content types: `.css`, `.js`, `.html`. The page is the cockpit: overview, turns, memory, tools, database, evals, spend, settings, and a chat dock. It does not build; edit the three files directly.
+CORS headers are also sent on the `/api/chat/stream` SSE response. If the frontend runs on another port or host, set `PAPERCLIP_DASHBOARD_ORIGINS` or every request will be blocked.
+
+## Frontend
+
+There are no static files. The old `/static/<file>` route and the `index.html` fallback were removed along with `STATIC`. The cockpit UI (overview, turns, memory, tools, database, evals, spend, settings, chat dock) lives in the Next.js app.
+
+- Any path that is not a known route returns `404` with `{"error": "not found"}` (GET and POST).
+- `/api/chat/stream` is a **POST** with an SSE response body, so the browser `EventSource` cannot be used. Read it with `fetch` and a stream reader.
+- Call the stream endpoint directly, not through a Next.js rewrite, because the proxy can buffer streamed responses.
 
 ## Agent
 
@@ -34,6 +44,7 @@ Content types: `.css`, `.js`, `.html`. The page is the cockpit: overview, turns,
 | `/api/data` | `collect()` — one blob for the whole page (see below) |
 | `/api/events?cursor=` | New lines in today’s `traces/YYYY-MM-DD.jsonl` after `cursor`. `cursor` omitted → empty events and the current line count |
 | `/api/reveal?path=` | Opens a path under home (or a repo skill path) in `PAPERCLIP_EDITOR`, else `cursor`, else `code`, else the OS file browser |
+| anything else | `404` `{"error": "not found"}` |
 
 ## POST
 
@@ -46,6 +57,7 @@ Content types: `.css`, `.js`, `.html`. The page is the cockpit: overview, turns,
 | `/api/settings` | provider, model, small_model, keys | Writes `.env` keys listed below and rebuilds the agent |
 | `/api/query` | `{sql}` | One read-only `SELECT` or `WITH` against `state.db`, max 200 rows |
 | `/api/session` | `{action, id?}` | `new`, `switch`, or `history` on `chat_log` |
+| anything else | — | `404` `{"error": "not found"}` |
 
 Settings keys that may be written: `PAPERCLIP_PROVIDER`, `PAPERCLIP_MODEL`, `PAPERCLIP_SMALL_MODEL`, `TAVILY_API_KEY`, and each provider’s `key_env`. Empty key values are not written. Keys in the API response are last-4 only.
 

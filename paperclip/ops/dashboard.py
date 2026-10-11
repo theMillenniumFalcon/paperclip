@@ -1,4 +1,5 @@
-"""Local dashboard server and API. See docs/ops/dashboard.md."""
+"""Local dashboard API server (frontend lives in a separate Next.js app).
+See docs/ops/dashboard.md."""
 
 from __future__ import annotations
 
@@ -7,13 +8,22 @@ import os
 import threading
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 
 from paperclip.config import load_settings
 from paperclip.db import connect
 
 PORT = 7777
-STATIC = Path(__file__).resolve().parent / "static"
+
+# Origins allowed to call this API (the Next.js dev/prod origin). Override with
+# PAPERCLIP_DASHBOARD_ORIGINS="https://a.com,https://b.com". This server has
+# sensitive endpoints (/api/settings writes API keys, /api/reveal opens files),
+# so we use an allowlist rather than "*".
+ALLOWED_ORIGINS = {
+    o.strip() for o in os.getenv(
+        "PAPERCLIP_DASHBOARD_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    ).split(",") if o.strip()
+}
 
 # One shared agent for the browser gateway. Built lazily (first chat), reused
 # across the threaded server's workers via a cross-thread connection + a lock
@@ -718,55 +728,62 @@ def events_since(cursor):
 
 
 class Handler(BaseHTTPRequestHandler):
-    def _send(self, body: bytes, ctype: str) -> None:
-        self.send_response(200)
+    def _cors(self) -> None:
+        """Add CORS headers only for allowlisted origins (the Next.js app)."""
+        origin = self.headers.get("Origin")
+        if origin in ALLOWED_ORIGINS:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+    def _send(self, body: bytes, ctype: str, status: int = 200) -> None:
+        self.send_response(status)
+        self._cors()
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
+    def _json(self, obj, status: int = 200) -> None:
+        self._send(json.dumps(obj, default=str).encode(), "application/json", status)
+
+    def do_OPTIONS(self):  # noqa: N802 — CORS preflight
+        self.send_response(204)
+        self._cors()
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_GET(self):  # noqa: N802 — http.server API
         if self.path == "/api/data":
-            self._send(json.dumps(collect(), default=str).encode(), "application/json")
+            self._json(collect())
         elif self.path.startswith("/api/events"):
             from urllib.parse import parse_qs, urlparse
 
             raw = parse_qs(urlparse(self.path).query).get("cursor", [None])[0]
             cursor = int(raw) if raw and raw.lstrip("-").isdigit() else None
-            self._send(json.dumps(events_since(cursor)).encode(), "application/json")
+            self._json(events_since(cursor))
         elif self.path.startswith("/api/reveal"):
             from urllib.parse import parse_qs, unquote, urlparse
 
             rel = unquote(parse_qs(urlparse(self.path).query).get("path", [""])[0])
-            self._send(json.dumps(reveal_path(rel)).encode(), "application/json")
-        elif self.path.startswith("/static/"):
-            self._serve_static(self.path)
+            self._json(reveal_path(rel))
         else:
-            self._send((STATIC / "index.html").read_bytes(), "text/html; charset=utf-8")
-
-    def _serve_static(self, path: str) -> None:  # the frontend files
-        name = path.split("/static/", 1)[1].split("?")[0]
-        target = (STATIC / name).resolve()
-        if STATIC.resolve() not in target.parents or not target.is_file():
-            self.send_response(404)
-            self.end_headers()
-            return
-        ctype = {".css": "text/css", ".js": "text/javascript",
-                 ".html": "text/html; charset=utf-8"}.get(target.suffix, "application/octet-stream")
-        self._send(target.read_bytes(), ctype)
+            self._json({"error": "not found"}, 404)
 
     def do_POST(self):  # noqa: N802 — local write endpoints
         length = int(self.headers.get("Content-Length", 0))
         # /api/voice takes a raw audio blob, not JSON — handle it first.
         if self.path == "/api/voice":
             raw = self.rfile.read(length)
-            self._send(json.dumps(transcribe_audio(raw)).encode(), "application/json")
+            self._json(transcribe_audio(raw))
             return
         # /api/chat/stream streams harness events (SSE) as the turn runs.
         if self.path == "/api/chat/stream":
             payload = json.loads(self.rfile.read(length) or "{}")
             message = (payload.get("message") or "").strip()
             self.send_response(200)
+            self._cors()
             self.send_header("Content-Type", "text/event-stream")
             self.send_header("Cache-Control", "no-cache")
             self.end_headers()
@@ -789,8 +806,7 @@ class Handler(BaseHTTPRequestHandler):
         routes = {"/api/chat": None, "/api/memory": memory_action, "/api/settings": apply_settings,
                   "/api/query": run_query, "/api/session": session_action}
         if self.path not in routes:
-            self.send_response(404)
-            self.end_headers()
+            self._json({"error": "not found"}, 404)
             return
         payload = json.loads(self.rfile.read(length) or "{}")
         try:
@@ -801,7 +817,7 @@ class Handler(BaseHTTPRequestHandler):
                 out = routes[self.path](payload)
         except Exception as exc:  # surface, don't 500 — the browser shows it
             out = {"error": f"{type(exc).__name__}: {exc}"}
-        self._send(json.dumps(out, default=str).encode(), "application/json")
+        self._json(out)
 
     def log_message(self, *args):  # keep the terminal quiet
         pass
@@ -826,7 +842,7 @@ def main() -> None:
                 print("Telegram gateway → listening in the background (phone messages land here too)")
         except Exception as exc:  # noqa: BLE001 — never let a gateway block the dashboard
             print(f"(telegram) not started: {exc}")
-        print(f"Paperclip dashboard → http://localhost:{port}  (Ctrl-C to stop)")
+        print(f"Paperclip API → http://localhost:{port}  (Ctrl-C to stop)")
         server.serve_forever()
         return
     raise SystemExit(f"no free port in {base}–{base + 9}")
