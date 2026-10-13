@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <div className="py-32 px-6 md:px-0">
@@ -62,6 +64,10 @@ python -m paperclip telegram`}</code>
           </p>
           </div>
         </div>
+
+        <p className="text-stone-500 prose">
+          <Link href="/docs">Docs</Link>
+        </p>
 
         <p className="text-stone-500 prose">
           Built by{" "}

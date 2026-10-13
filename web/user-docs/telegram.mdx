@@ -1,0 +1,18 @@
+---
+title: "Telegram"
+description: "Message it from your phone. The assistant still runs on your computer."
+---
+
+1. In Telegram, open @BotFather and send `/newbot`. Copy the token.
+2. In `.env`, set `TELEGRAM_BOT_TOKEN` to that token.
+3. Set `TELEGRAM_ALLOWED_USER` to your numeric Telegram id (from @userinfobot). If you leave this empty, anyone who finds the bot can talk to your assistant.
+
+```bash
+python -m paperclip telegram
+```
+
+Leave that process running. Your computer calls Telegram, so you do not need a public address.
+
+Only plain messages are answered. Bot commands are ignored. If the allowlist is set, other people get a short refusal.
+
+The computer prints your message and the reply. You read the reply in Telegram.

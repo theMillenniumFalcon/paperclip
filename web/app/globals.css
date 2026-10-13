@@ -37,6 +37,10 @@ a {
   @apply no-underline text-stone-100 hover:text-purple-400 transition-all duration-300 font-light;
 }
 
+a[aria-current="page"] {
+  @apply text-purple-400;
+}
+
 .arrow-link:hover .arrow {
   transform: translateX(0.25rem);
   @apply text-purple-400 transition-all duration-300;
@@ -76,6 +80,10 @@ h5:hover a {
 /* Prose (requires @tailwindcss/typography) */
 .prose {
   @apply max-w-fit text-stone-300;
+}
+
+.docs-prose.prose {
+  max-width: none;
 }
 
 .prose a {

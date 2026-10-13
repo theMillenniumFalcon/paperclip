@@ -1,0 +1,24 @@
+---
+title: "Memory"
+description: "Facts, days, and skills, in a folder you can open."
+---
+
+Everything lives under `.paperclip`, next to where you started Paperclip. `PAPERCLIP_HOME` changes that path.
+
+Three kinds of memory:
+
+- Facts. Something it should still know later, such as your name or a preference.
+- Episodes. What happened, with a date.
+- Skills. A `SKILL.md` file for a job you want done the same way next time.
+
+A small model decides whether this turn needs a search. After a few exchanges it files what it learned and rewrites `MEMORY.md` in that folder. Open the file when you want to read what it kept.
+
+You can also ask it to remember something on purpose. That note is saved as a fact, separate from the automatic filing.
+
+To add a skill from a URL:
+
+```bash
+python -m paperclip skill install <url>
+```
+
+The file lands in `.paperclip/skills`. Nothing here is copied to a hosted account.

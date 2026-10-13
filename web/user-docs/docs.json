@@ -1,0 +1,25 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Paperclip",
+  "description": "How to use Paperclip on your computer.",
+  "colors": {
+    "primary": "#c084fc"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start",
+        "pages": ["index", "install"]
+      },
+      {
+        "group": "Talk to it",
+        "pages": ["terminal", "voice", "telegram"]
+      },
+      {
+        "group": "On your machine",
+        "pages": ["memory", "tools", "dashboard"]
+      }
+    ]
+  }
+}

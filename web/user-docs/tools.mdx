@@ -1,0 +1,19 @@
+---
+title: "Tools"
+description: "What it can do in the middle of a conversation."
+---
+
+You do not pick a tool by name. Ask in the conversation, and it calls the one that fits.
+
+- Calendar. Add or list events. They stay on your machine. On a Mac, `PAPERCLIP_APPLE_CALENDAR=1` also tries to put them on Calendar.app.
+- Notes. Asking it to remember something writes a fact you asked for.
+- Web search. Used when the question needs the web. Set `TAVILY_API_KEY` to use Tavily. With no key, it uses DuckDuckGo.
+- Outbox. A message it "sends" is a text file under `.paperclip/outbox`. It does not send email or a chat message.
+
+A morning brief is one turn about your week, then a file:
+
+```bash
+python -m paperclip brief
+```
+
+The file is `.paperclip/outbox/brief-YYYY-MM-DD.txt`. On a Mac, `PAPERCLIP_APPLE_TOOLS=1` lets that brief read Calendar and Mail.

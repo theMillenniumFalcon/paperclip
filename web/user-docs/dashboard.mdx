@@ -1,0 +1,14 @@
+---
+title: "Dashboard"
+description: "A local view of the same database."
+---
+
+```bash
+python -m paperclip dashboard
+```
+
+This starts an API on your machine, at `127.0.0.1`. The port is `PAPERCLIP_DASHBOARD_PORT`, or `PORT`, or `7777`. If that port is taken, it tries the next ones. The startup line prints the address.
+
+The API reads and writes the same `.paperclip` folder as chat. If `TELEGRAM_BOT_TOKEN` is set, the Telegram poller starts in the background with it.
+
+The cockpit that draws memory, turns, and settings is a separate page. It calls this API. Point it at the address the command printed.

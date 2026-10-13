@@ -1,0 +1,22 @@
+---
+title: "Install"
+description: "Python, a key, and one command."
+---
+
+You need Python 3.13. From the project folder:
+
+```bash
+pip install -e .
+```
+
+Copy `.env.example` to `.env`. Put your key on `ANTHROPIC_API_KEY`. That is the only line the default setup needs.
+
+OpenAI and OpenRouter work too. Set `PAPERCLIP_PROVIDER` to `openai` or `openrouter`, and set the matching key: `OPENAI_API_KEY` or `OPENROUTER_API_KEY`.
+
+Start it:
+
+```bash
+python -m paperclip
+```
+
+Leave with Ctrl-D, or type `/quit`.

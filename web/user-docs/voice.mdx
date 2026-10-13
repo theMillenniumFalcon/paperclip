@@ -1,0 +1,18 @@
+---
+title: "Voice"
+description: "Speak, and hear the reply."
+---
+
+```bash
+python -m paperclip voice
+```
+
+You need a microphone. The command also needs the `sounddevice` package. If it exits right away, install that package and try again.
+
+By default it waits for a wake phrase: "paperclip", "paper clip", or "paperclip paperclip". It answers "Yes?" (or whatever you set as `PAPERCLIP_WAKE_ACK`), then listens. After a reply it stays open for a few seconds, so you can continue without the phrase.
+
+To use a key instead, set `PAPERCLIP_WAKE_WORD` to empty in `.env`. Press Enter to start recording, and Enter again to stop. Clips shorter than a quarter of a second are ignored.
+
+Speech is transcribed on your machine. Replies are spoken back. On macOS that uses the `say` command unless you set `PAPERCLIP_TTS`. `PAPERCLIP_VOICE` picks the voice.
+
+Ctrl-C leaves the session. The conversation is stored the same way as terminal chat.
