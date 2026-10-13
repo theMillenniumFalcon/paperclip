@@ -32,7 +32,7 @@ const fanwood = Fanwood_Text({
 
 export const metadata: Metadata = {
   title: "paperclip",
-  description: "A JSON document-based database that relies on key based access to achieve O(1) access time.",
+  description: "A local personal assistant. Terminal, voice, and Telegram, with memory on your machine.",
   metadataBase: new URL("https://paperclip.pages.dev"),
 };
 
