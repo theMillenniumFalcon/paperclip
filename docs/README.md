@@ -11,3 +11,4 @@
 - [Loop](loop/README.md) — LLM providers and client (`paperclip/loop/`)
 - [Gateway](gateway/README.md) — terminal REPL (`paperclip/gateway/`)
 - [Ops](ops/README.md) — dashboard, traces, brief, release gate (`paperclip/ops/`)
+- [Scripts](scripts/README.md) — demo seed and skill check (`scripts/`)
