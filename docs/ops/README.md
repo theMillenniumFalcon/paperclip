@@ -6,13 +6,12 @@ Local operations around a running Paperclip: the browser dashboard, traces, a mo
 
 | Path | Doc | Role |
 | --- | --- | --- |
-| `dashboard.py` | [dashboard.md](dashboard.md) | Stdlib HTTP server on `127.0.0.1` plus `static/` |
-| `static/` | [dashboard.md](dashboard.md) | Current UI (`index.html`, `style.css`, `app.js`). No build step |
+| `dashboard.py` | [dashboard.md](dashboard.md) | Stdlib HTTP API on `127.0.0.1` (no frontend) |
 | `tracing.py` | [tracing.md](tracing.md) | JSONL traces and optional OpenTelemetry |
 | `brief.py` | [brief.md](brief.md) | One briefing turn, saved to the outbox |
 | `release_gate.py` | [release-gate.md](release-gate.md) | Pytest gate that writes `eval_report.json` |
 
-A later Next.js UI belongs at the repo root in `web/`, not inside `paperclip/ops/static/`. It should call this server’s `/api/*` routes. `static/` stays the no-build UI until that app exists.
+The cockpit UI is a separate Next.js app. It calls this server’s `/api/*` routes. See [dashboard.md](dashboard.md).
 
 ## Pages
 
