@@ -98,12 +98,9 @@ export function DocsFrame({
 
       <aside className="hidden border-stone-800 md:sticky md:top-0 md:block md:h-screen md:w-60 md:shrink-0 md:overflow-y-auto md:border-r">
         <div className="px-6 pt-8">
-          <Link href="/" className="font-hammersmith text-stone-100">
+          <Link href="/" className="font-hammersmith text-xl text-stone-100">
             Paperclip
           </Link>
-          <p className="mt-1 text-xs text-stone-500">
-            <Link href="/docs">Docs</Link>
-          </p>
         </div>
         <DocsNav groups={groups} current={current} />
       </aside>

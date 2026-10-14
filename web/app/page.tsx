@@ -3,8 +3,11 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="py-32 px-6 md:px-0">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-2xl flex items-baseline justify-between">
         <h1 className="text-stone-100 font-hammersmith mb-4">Paperclip</h1>
+        <p className="prose text-stone-500 m-0">
+          <Link href="/docs">Docs</Link>
+        </p>
       </div>
 
       <main className="mx-auto max-w-2xl space-y-12 mt-12">
@@ -64,10 +67,6 @@ python -m paperclip telegram`}</code>
           </p>
           </div>
         </div>
-
-        <p className="text-stone-500 prose">
-          <Link href="/docs">Docs</Link>
-        </p>
 
         <p className="text-stone-500 prose">
           Built by{" "}
