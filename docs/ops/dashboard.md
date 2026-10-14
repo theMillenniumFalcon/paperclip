@@ -10,7 +10,7 @@ Stdlib `ThreadingHTTPServer` bound to **127.0.0.1**. A JSON API (plus one SSE st
 python -m paperclip.ops.dashboard
 ```
 
-Port: `PAPERCLIP_DASHBOARD_PORT`, else `PORT`, else `7777`. If that port is busy, the next ports up to +9 are tried, so the frontend's API base URL must be configurable. Startup prints `Paperclip API → http://localhost:<port>`. If `TELEGRAM_BOT_TOKEN` is set, `start_in_background()` from the Telegram gateway is started on a daemon thread.
+Port: `PAPERCLIP_DASHBOARD_PORT`, else `PORT`, else `7777`. If that port is busy, the next ports up to +9 are tried, so the frontend's API base URL must be configurable. Startup prints `Paperclip API -> http://localhost:<port>`. If `TELEGRAM_BOT_TOKEN` is set, `start_in_background()` from the Telegram gateway is started on a daemon thread.
 
 ## CORS
 
@@ -18,7 +18,7 @@ The Next.js app runs on a different origin, so the server sends CORS headers, bu
 
 | Item | Behavior |
 | --- | --- |
-| `PAPERCLIP_DASHBOARD_ORIGINS` | Comma-separated allowlist. Default: `http://localhost:3000,http://127.0.0.1:3000` |
+| `PAPERCLIP_DASHBOARD_ORIGINS` | Comma-separated allowlist. Default: `http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001` |
 | Matching origin | Response gets `Access-Control-Allow-Origin` (echoing the origin), `Vary: Origin`, `Allow-Methods: GET, POST, OPTIONS`, `Allow-Headers: Content-Type` |
 | Other origins | No CORS headers, so the browser blocks the call |
 | `OPTIONS` (any path) | `204` preflight response with the same CORS headers |
@@ -27,7 +27,14 @@ CORS headers are also sent on the `/api/chat/stream` SSE response. If the fronte
 
 ## Frontend
 
-There are no static files. The old `/static/<file>` route and the `index.html` fallback were removed along with `STATIC`. The cockpit UI (overview, turns, memory, tools, database, evals, spend, settings, chat dock) lives in the Next.js app.
+There are no static files. The old `/static/<file>` route and the `index.html` fallback were removed along with `STATIC`. The cockpit UI (overview, turns, memory, tools, database, evals, spend, settings, chat dock) lives in the Next.js app under `dashboard/`.
+
+```bash
+cd dashboard
+bun run dev
+```
+
+The app calls `NEXT_PUBLIC_PAPERCLIP_API` (default `http://127.0.0.1:7777`). Its browser origin must be listed in `PAPERCLIP_DASHBOARD_ORIGINS`.
 
 - Any path that is not a known route returns `404` with `{"error": "not found"}` (GET and POST).
 - `/api/chat/stream` is a **POST** with an SSE response body, so the browser `EventSource` cannot be used. Read it with `fetch` and a stream reader.

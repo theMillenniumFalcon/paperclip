@@ -21,7 +21,7 @@ PORT = 7777
 ALLOWED_ORIGINS = {
     o.strip() for o in os.getenv(
         "PAPERCLIP_DASHBOARD_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000",
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001",
     ).split(",") if o.strip()
 }
 
@@ -842,7 +842,7 @@ def main() -> None:
                 print("Telegram gateway → listening in the background (phone messages land here too)")
         except Exception as exc:  # noqa: BLE001 — never let a gateway block the dashboard
             print(f"(telegram) not started: {exc}")
-        print(f"Paperclip API → http://localhost:{port}  (Ctrl-C to stop)")
+        print(f"Paperclip API -> http://localhost:{port}  (Ctrl-C to stop)")
         server.serve_forever()
         return
     raise SystemExit(f"no free port in {base}–{base + 9}")
