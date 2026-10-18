@@ -12,3 +12,4 @@
 - [Gateway](gateway/README.md) — terminal REPL (`paperclip/gateway/`)
 - [Ops](ops/README.md) — dashboard, traces, brief, release gate (`paperclip/ops/`)
 - [Scripts](scripts/README.md) — demo seed and skill check (`scripts/`)
+- [Manual testing](manual-testing.md) — hand tests from one CLI turn up to gateways and the release gate

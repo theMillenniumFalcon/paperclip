@@ -67,3 +67,6 @@ coverage.xml
 # PyInstaller
 *.manifest
 *.spec
+
+# .paperclip
+.paperclip-*
