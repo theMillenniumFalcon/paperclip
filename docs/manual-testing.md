@@ -570,18 +570,18 @@ Copy this and mark each line after the layer passes.
 - [x] `search_web` returns links or a clear backend failure
 - [ ] `manage_memory` can search, update, and delete a fact
 - [x] `update_soul` appends a bullet under `## Learned rules`
-- [ ] `create_skill` writes a skill that matches a later message and refuses a duplicate name
-- [ ] A second CLI process reloads `terminal` history
-- [ ] Personal questions retrieve; arithmetic skips
+- [x] `create_skill` writes a skill that matches a later message and refuses a duplicate name
+- [x] A second CLI process reloads `terminal` history
+- [x] Personal questions retrieve; arithmetic skips
 - [ ] With `PAPERCLIP_CONSOLIDATE_EVERY=2`, facts, one episode, and `consolidated = 1` appear
 - [ ] `brief` writes `outbox/brief-<date>.txt` with `source=brief`
 - [ ] `skill install` saves one valid skill and rejects bad frontmatter
-- [ ] `uv run python scripts/validate_skills.py` prints `skill validation OK`
+- [x] `uv run python scripts/validate_skills.py` prints `skill validation OK`
 - [ ] `uv run python scripts/demo_seed.py` backs up the home and seeds Raj, Sergey, and the swim
-- [ ] `GET /api/data` matches the database; unknown routes 404
-- [ ] CORS allows `http://localhost:3000` and not an unknown origin
+- [x] `GET /api/data` matches the database; unknown routes 404
+- [x] CORS allows `http://localhost:3000` and not an unknown origin
 - [ ] `POST /api/chat` and `/api/chat/stream` complete; `source` is `dashboard`
-- [ ] Session `new` / `switch` and read-only `/api/query` behave
+- [x] Session `new` / `switch` and read-only `/api/query` behave
 - [ ] Telegram allowlist, text replies, and a second-poller conflict
 - [ ] Voice push-to-talk transcribes, replies, and rejects a tiny clip
 - [ ] A second provider completes a no-tool turn and a `save_note`

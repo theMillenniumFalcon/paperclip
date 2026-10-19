@@ -69,4 +69,5 @@ coverage.xml
 *.spec
 
 # .paperclip
+.paperclip
 .paperclip-*
