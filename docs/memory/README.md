@@ -54,7 +54,7 @@ Constructed with `(conn, settings, client)` where `client` is Anthropic-shaped (
 | `log_chat(user, reply, session_id, source)` | Two `chat_log` rows, commit |
 | `session_history(session_id)` | `(user, assistant)` pairs in order |
 | `list_sessions()` | Per `session_id`: title, counts, timestamps |
-| `export_markdown()` | Write `PAPERCLIP_HOME/MEMORY.md` from SQL |
+| `export_markdown()` | Rewrite `PAPERCLIP_HOME/MEMORY.md` from SQL as UTF-8 (locale encoding drops characters such as CJK on Windows) |
 | `maybe_consolidate(notify?)` | `consolidate_if_due`; optional `notify("consolidation", …)` |
 
 Skill dirs: repo `skills/` and `{home}/skills`.

@@ -26,11 +26,13 @@ When the home directory already exists:
 
 | Kind | Content |
 | --- | --- |
-| Fact `user` | YouTube channel Sean's AI Stories, X `@ShenSeanChen`, Chinese accounts 肖恩君Sean |
-| Fact `raj` | Close friend, tennis, British slang |
-| Fact `sergey` | Close friend, swimming, cooking |
-| Episode | `2026-07-11` — confirmed the standing Saturday 5 PM swim with Sergey |
-| Event | "Swim with Sergey", `2026-07-11T17:00`–`18:00`, attendee Sergey |
+| Fact `user` | Software engineer in India; Upsurge Labs, OpenBio, portfolio nishank.vercel.app |
+| Fact `projects` | AI apps and tools, including medcare-ai, safewatch-ai, book2playlist, recipes-ai, smolDB |
+| Fact `movies` | Letterboxd reviews: short, two or three lines, tone matching the film |
+| Fact `learning` | AI/ML, backend, system design, RAG, embeddings, multi-agent systems, Cloudflare |
+| Fact `tech` | Windows and macOS; Bun, Next.js, Tailwind, MongoDB, PostgreSQL, Redis, Supabase |
+| Episode | `2026-10-22` — exploring AI projects and practical software ideas |
+| Event | "Movie night", `2026-10-24T19:00`–`22:00`, attendee user |
 
 Edit `FACTS`, `EPISODE`, and `EVENT` in the script before recording. Apple Calendar sync stays off (`make_tool` is called without `apple_calendar`).
 

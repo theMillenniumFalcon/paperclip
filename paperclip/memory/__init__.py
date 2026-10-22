@@ -117,7 +117,9 @@ class Memory:
         lines += [f"- **{f['subject']}** — {f['content']}" for f in facts] or ["_none yet_"]
         lines += ["", f"## Episodes ({len(eps)})", ""]
         lines += [f"- **{e['happened_at']}** — {e['summary']}" for e in eps] or ["_none yet_"]
-        (self.settings.home / "MEMORY.md").write_text("\n".join(lines) + "\n")
+        (self.settings.home / "MEMORY.md").write_text(
+            "\n".join(lines) + "\n", encoding="utf-8"
+        )
 
     def maybe_consolidate(self, notify=None) -> None:
         new_facts = consolidation.consolidate_if_due(

@@ -19,16 +19,43 @@ from paperclip.tools.calendar import make_tool
 
 # Curated seed — clean, no duplicates. Edit these to taste before recording.
 FACTS = [
-    ("user", "The user runs the YouTube channel 'Sean's AI Stories' and films implementation "
-             "walkthroughs. His X account is @ShenSeanChen. All of his Chinese social media "
-             "accounts are called 肖恩君Sean."),
-    ("raj", "Raj is a close friend who plays really great tennis and always teaches me great "
-            "British slangs!"),
-    ("sergey", "Sergey is the close friend who loves swimming and often cooks delicious food!"),
+    ("user", "The user is a software engineer from India who builds web applications, "
+             "AI-powered products, and developer tools. He has worked at Upsurge Labs "
+             "on bhindi.io, led development of OpenBio, interned at multiple companies, "
+             "and built projects using Next.js, AI APIs, databases, and modern web technologies. "
+             "He shares his work through GitHub and his personal portfolio at nishank.vercel.app."),
+
+    ("projects", "The user enjoys constantly building things, especially AI-powered applications, "
+                 "full-stack web projects, and developer tools. Some of his projects include "
+                 "medcare-ai, safewatch-ai, book2playlist, recipes-ai, and smolDB."),
+
+    ("movies", "The user is a movie enthusiast who uses Letterboxd to log, rate, and review films. "
+               "He prefers concise reviews, usually two to three lines, and likes getting "
+               "10 variations when brainstorming a review. He generally prefers reviews that "
+               "match the movie's tone rather than sarcastic one-liners."),
+
+    ("learning", "The user is interested in AI and machine learning, backend engineering, "
+                 "system design, cloud deployment, and building scalable applications. "
+                 "He has explored RAG, embeddings, vector databases, multi-agent systems, "
+                 "and deployment platforms such as Cloudflare."),
+
+    ("tech", "The user works across Windows and macOS development environments, uses Bun "
+             "for JavaScript projects, and has experience with Next.js, Tailwind CSS, "
+             "MongoDB, PostgreSQL, Redis, and Supabase.")
 ]
-EPISODE = ("2026-07-11", "Confirmed the standing Saturday 5 PM swim with Sergey.")
-EVENT = {"title": "Swim with Sergey", "start": "2026-07-11T17:00",
-         "end": "2026-07-11T18:00", "attendees": "Sergey"}
+
+EPISODE = (
+    "2026-10-22",
+    "Spent time exploring AI projects and software development ideas, "
+    "with a focus on building practical applications."
+)
+
+EVENT = {
+    "title": "Movie night",
+    "start": "2026-10-24T19:00",
+    "end": "2026-10-24T22:00",
+    "attendees": "user"
+}
 
 
 def main(reset_spend: bool = False) -> None:

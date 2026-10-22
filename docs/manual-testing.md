@@ -310,13 +310,13 @@ uv run python scripts/demo_seed.py
 
 Expect a backup directory beside the home, `SOUL.md` left in place, `usage.jsonl` kept, and `eval_report.json` / `eval_runs.jsonl` removed. Seeded rows:
 
-- Facts for `user`, `raj`, and `sergey`.
-- An episode on `2026-07-11` about a Saturday swim with Sergey.
-- A calendar event `Swim with Sergey` at `2026-07-11T17:00`.
+- Facts for `user`, `projects`, `movies`, `learning`, and `tech`.
+- An episode on `2026-10-22` about exploring AI projects and practical software ideas.
+- A calendar event `Movie night` at `2026-10-24T19:00`.
 
 `uv run python scripts/demo_seed.py --reset-spend` also deletes `usage.jsonl`.
 
-Start the CLI and ask `When do I swim with Sergey?` The gate should retrieve, and the reply should use the episode or the event.
+Start the CLI and ask `When is movie night?` The gate should retrieve, and the reply should use the calendar event.
 
 ## Layer 6 — HTTP API
 
@@ -577,7 +577,7 @@ Copy this and mark each line after the layer passes.
 - [ ] `brief` writes `outbox/brief-<date>.txt` with `source=brief`
 - [ ] `skill install` saves one valid skill and rejects bad frontmatter
 - [x] `uv run python scripts/validate_skills.py` prints `skill validation OK`
-- [ ] `uv run python scripts/demo_seed.py` backs up the home and seeds Raj, Sergey, and the swim
+- [ ] `uv run python scripts/demo_seed.py` backs up the home and seeds the profile facts, the 2026-10-22 episode, and movie night
 - [x] `GET /api/data` matches the database; unknown routes 404
 - [x] CORS allows `http://localhost:3000` and not an unknown origin
 - [ ] `POST /api/chat` and `/api/chat/stream` complete; `source` is `dashboard`
