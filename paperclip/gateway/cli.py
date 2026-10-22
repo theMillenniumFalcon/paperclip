@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
 from paperclip.app import Paperclip
@@ -12,9 +13,12 @@ console = Console()
 
 def _observer(kind: str, event: dict) -> None:
     if kind == "tool":
-        console.print(f"  [dim]tool · {event['tool']}({event['args']}) → {event['output'][:80]}[/dim]")
+        detail = escape(f"{event['tool']}({event['args']}) → {event['output'][:80]}")
+        console.print(f"  [dim]tool · {detail}[/dim]")
     elif kind == "gate":
-        console.print(f"  [dim]gate · {event['decision']} — {event.get('reason','')}[/dim]")
+        console.print(
+            f"  [dim]gate · {escape(str(event['decision']))} — {escape(str(event.get('reason', '')))}[/dim]"
+        )
     elif kind == "consolidation":
         console.print(f"  [dim]memory · consolidated {event['new_facts']} fact(s) from recent chats[/dim]")
 
@@ -38,7 +42,7 @@ def main() -> None:
         if user_message in ("/quit", "/exit"):
             break
         result = paperclip.respond(user_message, observer=_observer, source="cli")
-        console.print(f"[bold green]paperclip ›[/bold green] {result.reply}\n")
+        console.print(f"[bold green]paperclip ›[/bold green] {escape(result.reply)}\n")
     console.print("[dim]bye — your memory stays in state.db[/dim]")
 
 

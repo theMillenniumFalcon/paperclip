@@ -2,7 +2,7 @@
 
 Code: `paperclip/tools/experimental.py`
 
-Registered only when `PAPERCLIP_EXPERIMENTAL` is `1`, `true`, or `yes`. Each tool returns a “coming soon” string and does not perform the action. Descriptions are prefixed `[coming soon]`.
+Registered only when `PAPERCLIP_EXPERIMENTAL` is `1`, `true`, or `yes`. Each tool returns a “coming soon” string and does not perform the action. Descriptions are prefixed `coming soon`.
 
 | Name | Intended later |
 | --- | --- |

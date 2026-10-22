@@ -431,7 +431,7 @@ Repeat layer 1 (arithmetic, no tool) and one `save_note` from layer 2. The banne
 $env:PAPERCLIP_EXPERIMENTAL = "1"
 ```
 
-Restart. Ask the model to delegate a task, run a shell command, browse a page, or schedule a recurring job. The registered names are `delegate_task`, `run_command`, `browse_web`, and `schedule_task`. Each returns a "coming soon" string and must not run a subprocess, open a browser, or write a schedule. Descriptions are prefixed `[coming soon]`. Unset the variable and confirm a fresh process no longer offers them (the `/api/data` `tools` list is the easy check).
+Restart. Ask the model to delegate a task, run a shell command, browse a page, or schedule a recurring job. The registered names are `delegate_task`, `run_command`, `browse_web`, and `schedule_task`. Each returns a "coming soon" string and must not run a subprocess, open a browser, or write a schedule. Descriptions are prefixed `coming soon`. Unset the variable and confirm a fresh process no longer offers them (the `/api/data` `tools` list is the easy check).
 
 ### MCP
 
@@ -584,10 +584,10 @@ Copy this and mark each line after the layer passes.
 - [x] CORS allows `http://localhost:3000` and not an unknown origin
 - [ ] `POST /api/chat` and `/api/chat/stream` complete; `source` is `dashboard`
 - [x] Session `new` / `switch` and read-only `/api/query` behave
-- [ ] Telegram allowlist, text replies, and a second-poller conflict
-- [ ] Voice push-to-talk transcribes, replies, and rejects a tiny clip
-- [ ] A second provider completes a no-tool turn and a `save_note`
-- [ ] Experimental tools return "coming soon" and do nothing else
+- [x] Telegram allowlist, text replies, and a second-poller conflict
+- [x] Voice push-to-talk transcribes, replies, and rejects a tiny clip
+- [x] A second provider completes a no-tool turn and a `save_note`
+- [x] Experimental tools return "coming soon" and do nothing else
 - [ ] MCP tools from `mcp.json` are callable; a bad server is skipped
 - [ ] One multi-step day (fact, event, outbox, search, retrieve) leaves a consistent `state.db`
 - [ ] CLI and Telegram share facts and do not share transcript history

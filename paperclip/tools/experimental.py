@@ -24,7 +24,7 @@ def _stub(name: str, description: str, box: str) -> Tool:
         return (f"'{name}' maps to the '{box}' capability and isn't wired "
                 f"in yet — it's on the roadmap (coming soon). Tell the user honestly.")
 
-    return Tool(name=name, description=f"[coming soon] {description}",
+    return Tool(name=name, description=f"coming soon {description}",
                 input_schema={"type": "object", "properties": {}}, fn=fn)
 
 

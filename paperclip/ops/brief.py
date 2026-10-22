@@ -17,7 +17,7 @@ def main() -> None:
     if not paperclip.settings.apple_tools:
         console.print("[dim]Tip: set PAPERCLIP_APPLE_TOOLS=1 to brief from your real Calendar and Mail.[/dim]")
     result = paperclip.respond(PROMPT, source="brief")
-    console.print(result.reply)
+    console.print(result.reply, markup=False)
     out = paperclip.settings.home / "outbox" / f"brief-{date.today().isoformat()}.txt"
     out.write_text(result.reply + "\n", encoding="utf-8")
     console.print(f"[dim]saved to {out}[/dim]")
