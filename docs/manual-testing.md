@@ -591,4 +591,4 @@ Copy this and mark each line after the layer passes.
 - [x] MCP tools from `mcp.json` are callable; a bad server is skipped
 - [ ] One multi-step day (fact, event, outbox, search, retrieve) leaves a consistent `state.db`
 - [ ] CLI and Telegram share facts and do not share transcript history
-- [ ] `uv run python -m paperclip.ops.release_gate` prints `GATE OPEN` or a `GATE CLOSED` you can explain
+- [x] `uv run python -m paperclip.ops.release_gate` prints `GATE OPEN` or a `GATE CLOSED` you can explain
