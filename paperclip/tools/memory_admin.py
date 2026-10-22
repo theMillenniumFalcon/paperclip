@@ -105,7 +105,7 @@ def make_create_skill_tool(settings, memory) -> Tool:
         if _parse_text(text, dest) is None:
             return "That didn't validate — description must be present and non-trivial."
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(text)
+        dest.write_text(text, encoding="utf-8")
         memory.skills.refresh()
         return f"Created skill '{name}'. It will trigger on: {description.strip()}"
 

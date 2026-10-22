@@ -6,7 +6,7 @@ One `Tracer` is a loop observer. Pass `tracer.event` anywhere an `(kind, event)`
 
 ## JSONL (always)
 
-Appends to `{PAPERCLIP_HOME}/traces/YYYY-MM-DD.jsonl`. Each line is one event plus `ts`.
+Appends UTF-8 to `{PAPERCLIP_HOME}/traces/YYYY-MM-DD.jsonl`. Each line is one event plus `ts`. Replies can contain characters outside the Windows console code page (for example emoji); the file is still UTF-8.
 
 | Call | Writes |
 | --- | --- |

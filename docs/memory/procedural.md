@@ -28,7 +28,7 @@ Intended CLI: `paperclip skill install <url>` (when wired).
 
 1. `_raw_url` — GitHub `blob` → `raw.githubusercontent.com`; gist → `/raw`.
 2. Fetch (15s timeout).
-3. Write `{home}/skills/_incoming/SKILL.md`, parse, move to `{home}/skills/<name>/SKILL.md`.
+3. Write `{home}/skills/_incoming/SKILL.md` as UTF-8, parse, move to `{home}/skills/<name>/SKILL.md` (replacing that name if it is already installed). The loader reads every `SKILL.md` as UTF-8. Stdout is UTF-8 for this command so the success line can include characters outside the Windows console code page.
 4. Invalid frontmatter: delete temp, exit with error.
 
 Only the markdown file is installed, not sibling assets.

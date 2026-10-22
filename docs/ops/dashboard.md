@@ -59,7 +59,7 @@ The app calls `NEXT_PUBLIC_PAPERCLIP_API` (default `http://127.0.0.1:7777`). Its
 | --- | --- | --- |
 | `/api/chat` | `{message}` | One `respond(..., source="dashboard")`. JSON: reply, gate, tools, consolidation, iterations, latency |
 | `/api/chat/stream` | `{message}` | SSE `data:` events as the turn runs, then `kind: done` |
-| `/api/voice` | raw audio bytes | faster-whisper (`PAPERCLIP_WHISPER_MODEL`, default `base`) → `{text}` |
+| `/api/voice` | raw audio bytes | faster-whisper (`PAPERCLIP_WHISPER_MODEL`, default `base`; `PAPERCLIP_WHISPER_DEVICE`, default `cpu`) → `{text}` |
 | `/api/memory` | action payload | Update/delete facts or episodes, rewrite `SOUL.md`, or save a `SKILL.md` inside the skills folders |
 | `/api/settings` | provider, model, small_model, keys | Writes `.env` keys listed below and rebuilds the agent |
 | `/api/query` | `{sql}` | One read-only `SELECT` or `WITH` against `state.db`, max 200 rows |

@@ -44,12 +44,17 @@ def record_until_enter():
     return np.concatenate(frames)[:, 0]
 
 
+def whisper_device() -> str:
+    return os.getenv("PAPERCLIP_WHISPER_DEVICE", "cpu").strip().lower() or "cpu"
+
+
 class Ears:
     def __init__(self, model_size: str | None = None):
         from faster_whisper import WhisperModel
 
         self.model = WhisperModel(
             model_size or os.getenv("PAPERCLIP_WHISPER_MODEL", "base"),
+            device=whisper_device(),
             compute_type="int8",
         )
 

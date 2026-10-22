@@ -184,7 +184,7 @@ def collect() -> dict:
     events = []
     trace_files = sorted((home / "traces").glob("*.jsonl"))
     for path in trace_files:
-        for line in path.read_text().splitlines():
+        for line in path.read_text(encoding="utf-8").splitlines():
             try:
                 events.append(json.loads(line))
             except json.JSONDecodeError:
@@ -261,7 +261,7 @@ def collect() -> dict:
                 pass
     eval_history.reverse()
 
-    outbox = [{"name": p.name, "text": p.read_text()[:400]}
+    outbox = [{"name": p.name, "text": p.read_text(encoding="utf-8")[:400]}
               for p in sorted((home / "outbox").glob("*.txt"), reverse=True)[:20]]
 
     # --- state.db introspection: the actual SQLite tables, so the persistence
@@ -494,7 +494,13 @@ def transcribe_audio(raw: bytes) -> dict:
 
     with _whisper_lock:
         if _whisper is None:
-            _whisper = WhisperModel(os.getenv("PAPERCLIP_WHISPER_MODEL", "base"), compute_type="int8")
+            from paperclip.gateway.voice import whisper_device
+
+            _whisper = WhisperModel(
+                os.getenv("PAPERCLIP_WHISPER_MODEL", "base"),
+                device=whisper_device(),
+                compute_type="int8",
+            )
     # the browser sends WAV (PCM) — Whisper/PyAV decode it reliably (WebM/Opus
     # from MediaRecorder often fails to decode).
     tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
@@ -619,7 +625,7 @@ def memory_action(payload: dict) -> dict:
             return {"error": "can only edit SKILL.md files inside the skills folders"}
         if _parse_text(text, dest) is None:
             return {"error": "invalid SKILL.md — needs a name and description in the frontmatter"}
-        dest.write_text(text.rstrip() + "\n")
+        dest.write_text(text.rstrip() + "\n", encoding="utf-8")
         return {"ok": True}
 
     conn = connect(settings.home)
@@ -715,7 +721,7 @@ def events_since(cursor):
     path = settings.home / "traces" / (datetime.now().strftime("%Y-%m-%d") + ".jsonl")
     if not path.exists():
         return {"events": [], "cursor": 0}
-    lines = path.read_text().splitlines()
+    lines = path.read_text(encoding="utf-8").splitlines()
     if cursor is None or cursor < 0 or cursor > len(lines):
         return {"events": [], "cursor": len(lines)}
     out = []

@@ -380,6 +380,8 @@ Dashboard interaction: with the token set, `uv run python -m paperclip dashboard
 
 Install the extra (`sounddevice`, `numpy`, `faster-whisper`) before this. On Windows there is no `say` command. Leave `PAPERCLIP_TTS` empty only if Kokoro imports; otherwise set `PAPERCLIP_TTS=kokoro` or accept the line `(no TTS engine on this platform — set PAPERCLIP_TTS=kokoro)`. The transcript path still works without audio playback.
 
+Whisper defaults to CPU (`PAPERCLIP_WHISPER_DEVICE=cpu`). Leaving the device on `auto` loads CUDA and then fails with `Library cublas64_12.dll is not found or cannot be loaded` when that DLL is not installed. Set `cuda` only after the CUDA 12 runtime is on the machine.
+
 Push-to-talk (simplest):
 
 ```powershell
@@ -563,21 +565,21 @@ Copy this and mark each line after the layer passes.
 - [x] Banner shows the throwaway home and the model; `/quit` leaves `state.db`
 - [x] Arithmetic turn skips the gate and calls no tool
 - [x] `chat_log`, today's trace, `usage.jsonl`, `SOUL.md`, and `MEMORY.md` exist
-- [ ] `save_note` writes a `user` fact and `MEMORY.md`
-- [ ] `create_event` writes SQLite and ICS; a repeat does not duplicate
-- [ ] `list_events` returns that event
+- [x] `save_note` writes a `user` fact and `MEMORY.md`
+- [x] `create_event` writes SQLite and ICS; a repeat does not duplicate
+- [x] `list_events` returns that event
 - [x] `send_message` writes an outbox file and does not send it
 - [x] `search_web` returns links or a clear backend failure
-- [ ] `manage_memory` can search, update, and delete a fact
+- [x] `manage_memory` can search, update, and delete a fact
 - [x] `update_soul` appends a bullet under `## Learned rules`
 - [x] `create_skill` writes a skill that matches a later message and refuses a duplicate name
 - [x] A second CLI process reloads `terminal` history
 - [x] Personal questions retrieve; arithmetic skips
 - [ ] With `PAPERCLIP_CONSOLIDATE_EVERY=2`, facts, one episode, and `consolidated = 1` appear
-- [ ] `brief` writes `outbox/brief-<date>.txt` with `source=brief`
-- [ ] `skill install` saves one valid skill and rejects bad frontmatter
+- [x] `brief` writes `outbox/brief-<date>.txt` with `source=brief`
+- [x] `skill install` saves one valid skill and rejects bad frontmatter
 - [x] `uv run python scripts/validate_skills.py` prints `skill validation OK`
-- [ ] `uv run python scripts/demo_seed.py` backs up the home and seeds the profile facts, the 2026-10-22 episode, and movie night
+- [x] `uv run python scripts/demo_seed.py` backs up the home and seeds the profile facts, the 2026-10-22 episode, and movie night
 - [x] `GET /api/data` matches the database; unknown routes 404
 - [x] CORS allows `http://localhost:3000` and not an unknown origin
 - [ ] `POST /api/chat` and `/api/chat/stream` complete; `source` is `dashboard`

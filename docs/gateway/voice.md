@@ -31,6 +31,7 @@ Opens `sounddevice.InputStream` with a callback that appends float32 mono frames
 Wraps `faster_whisper.WhisperModel` (`compute_type="int8"`).
 
 - Model size: constructor arg, or `PAPERCLIP_WHISPER_MODEL` (default `base`).
+- Device: `whisper_device()` reads `PAPERCLIP_WHISPER_DEVICE` (default `cpu`). `auto` picks CUDA when a GPU is visible, then `encode` raises `Library cublas64_12.dll is not found` on Windows if the CUDA 12 runtime is not installed. Set `cuda` only when that DLL loads.
 - `transcribe(audio, language=None)`: optional `PAPERCLIP_WHISPER_LANG`; joins segment text.
 
 Wake loop uses `Ears("tiny")` for scanning and a full `Ears()` for commands.
@@ -101,6 +102,7 @@ Poll blocks until loud or timeout (follow-up window without repeating wake phras
 | Variable | Default | Role |
 | --- | --- | --- |
 | `PAPERCLIP_WHISPER_MODEL` | `base` | Command transcription model size |
+| `PAPERCLIP_WHISPER_DEVICE` | `cpu` | `cpu`, `cuda`, or `auto`. CPU avoids the missing `cublas64_12.dll` crash |
 | `PAPERCLIP_WHISPER_LANG` | (auto) | Force language on transcribe |
 | `PAPERCLIP_WAKE_WORD` | `_DEFAULT_WAKE_WORD` | Comma-separated; empty → push-to-talk |
 | `PAPERCLIP_WAKE_LANG` | `en` if ASCII wake word | Tiny-model scan language |

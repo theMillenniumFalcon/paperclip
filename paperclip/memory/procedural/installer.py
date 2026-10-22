@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import urllib.request
 
 from paperclip.config import load_settings
@@ -17,6 +18,10 @@ def _raw_url(url: str) -> str:
 
 
 def install(url: str) -> None:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
     raw = _raw_url(url)
     print(f"Fetching {raw}")
     with urllib.request.urlopen(raw, timeout=15) as response:  # noqa: S310
@@ -26,7 +31,7 @@ def install(url: str) -> None:
     settings.ensure_home()
     tmp = settings.home / "skills" / "_incoming" / "SKILL.md"
     tmp.parent.mkdir(parents=True, exist_ok=True)
-    tmp.write_text(text)
+    tmp.write_text(text, encoding="utf-8")
 
     skill = _parse(tmp)
     if skill is None:
@@ -38,6 +43,7 @@ def install(url: str) -> None:
 
     dest = settings.home / "skills" / skill.name / "SKILL.md"
     dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.unlink(missing_ok=True)
     tmp.rename(dest)
     tmp.parent.rmdir()
     print(f"Installed '{skill.name}' → {dest}")
