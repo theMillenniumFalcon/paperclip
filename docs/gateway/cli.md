@@ -13,6 +13,7 @@ Interactive terminal chat: read a line, call `Paperclip.respond`, print the repl
    - Skip empty lines.
    - Otherwise `paperclip.respond(user_message, observer=_observer, source="cli")`.
    - Print reply as `paperclip ›` (bold green) with a trailing blank line. The reply is escaped so Rich does not treat brackets in model text as style tags — `coming soon` stays visible.
+   - A provider failure (rate limit, auth, timeout, API status) stays inside that loop: one `WARNING paperclip - …` line on stderr, then the same reply path. The prompt comes back. See [provider errors](../loop/errors.md).
 5. On exit, print dim farewell (memory remains in `state.db`).
 
 ## `_observer(kind, event)`

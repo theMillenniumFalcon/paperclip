@@ -7,6 +7,7 @@ from typing import Any, Callable
 
 import anthropic
 
+from paperclip.loop.errors import log_provider_error, provider_detail, provider_error_reply
 from paperclip.tools.registry import ToolRegistry
 
 LoopEvent = dict[str, Any]
@@ -18,6 +19,7 @@ class LoopResult:
     reply: str
     tool_calls: list[LoopEvent] = field(default_factory=list)
     iterations: int = 0
+    error: str | None = None
 
 
 def run_loop(
@@ -38,26 +40,19 @@ def run_loop(
     for iteration in range(1, max_iterations + 1):
         result.iterations = iteration
 
-        response = None
-        if can_stream:
-            try:
-                with client.messages.stream(
-                    model=model, system=system, messages=messages,
-                    tools=tools.schemas(), max_tokens=max_tokens,
-                ) as s:
-                    for delta in s.text_stream:
-                        notify("text", {"delta": delta})
-                    response = s.get_final_message()
-            except Exception:
-                response = None
-        if response is None:
-            response = client.messages.create(
-                model=model,
-                system=system,
-                messages=messages,
-                tools=tools.schemas(),
-                max_tokens=max_tokens,
+        try:
+            response = _complete(
+                client, model, system, messages, tools, max_tokens, can_stream, notify,
             )
+        except Exception as exc:
+            reply = provider_error_reply(exc)
+            if reply is None:
+                raise
+            log_provider_error(exc)
+            notify("error", {"error": type(exc).__name__, "detail": provider_detail(exc)})
+            result.reply = reply
+            result.error = type(exc).__name__
+            return result
         notify("llm", {"iteration": iteration, "stop_reason": response.stop_reason,
                        "usage": {"in": response.usage.input_tokens, "out": response.usage.output_tokens}})
 
@@ -82,3 +77,29 @@ def run_loop(
 
     result.reply = "(I hit my iteration limit before finishing — try breaking the request into smaller steps.)"
     return result
+
+
+def _complete(client, model, system, messages, tools, max_tokens, can_stream, notify):
+    response = None
+    if can_stream:
+        try:
+            with client.messages.stream(
+                model=model, system=system, messages=messages,
+                tools=tools.schemas(), max_tokens=max_tokens,
+            ) as s:
+                for delta in s.text_stream:
+                    notify("text", {"delta": delta})
+                response = s.get_final_message()
+        except Exception as exc:
+            if provider_error_reply(exc) is not None:
+                raise
+            response = None
+    if response is None:
+        response = client.messages.create(
+            model=model,
+            system=system,
+            messages=messages,
+            tools=tools.schemas(),
+            max_tokens=max_tokens,
+        )
+    return response

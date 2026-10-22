@@ -34,6 +34,10 @@ Kana and other non-latin text normalize to empty and do **not** wake, even if li
 
 `sync_to_apple_calendar` on a non-macOS machine returns a string containing `not macOS`. Empty `create_event()` returns a message that includes `needs at least a title` and does not raise `TypeError`.
 
+## `test_model_errors.py`
+
+Offline. A client that raises `RateLimitError` (status 429, OpenRouter-style `body`) makes `respond` return the rate-limit reply with `free-models-per-day` and `error="RateLimitError"`. The credits sentence in that body is absent from the reply and the warning. The main model is not called again, and `chat_log` stays empty. A `ValueError` from the model call still propagates after the gate fails open. `retry_with_max_tokens` is true only for a bad request that names `max_completion_tokens`.
+
 ## `test_working_memory.py`
 
 `Session.build_system` includes `Right now it is` and a `HH:MM` clock. A new `Session` uses `session_id` `"default"`. `start_new` sets the id and clears `history`. These two tests call `load_settings()` (the developer home), not `make_paperclip`.

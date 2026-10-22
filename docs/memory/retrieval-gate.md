@@ -23,7 +23,9 @@ should_retrieve(client, small_model, message) -> tuple[bool, str, str]
 
 ## Fail open
 
-On any error or missing `{`, return `(True, message, reason)` — retrieve using the **original message** as the query.
+On a parse error, missing `{`, or any other non-provider exception, return `(True, message, reason)` — retrieve using the **original message** as the query.
+
+Provider failures (rate limit, auth, timeout, API status) propagate. The turn stops in [app.respond](../app.md) with one warning and a reply, so a rate-limited gate does not immediately call the main model. See [provider errors](../loop/errors.md).
 
 If `small_model` is wrong for the active provider, the gate may error every turn and **always retrieve** while still looking “healthy.” Use a valid `PAPERCLIP_SMALL_MODEL` for your [provider](../loop/models.md).
 

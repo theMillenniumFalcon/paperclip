@@ -6,6 +6,8 @@ import json
 
 import anthropic
 
+from paperclip.loop.errors import provider_error_reply
+
 GATE_PROMPT = """\
 You are a retrieval gate for a personal assistant's long-term memory.
 Given the user's message, decide if answering well requires the user's stored
@@ -33,4 +35,6 @@ def should_retrieve(
         decision = json.loads(text[text.index("{") : text.rindex("}") + 1])
         return bool(decision.get("retrieve")), decision.get("query", message), decision.get("reason", "")
     except Exception as exc:
+        if provider_error_reply(exc) is not None:
+            raise
         return True, message, f"gate failed open ({type(exc).__name__})"

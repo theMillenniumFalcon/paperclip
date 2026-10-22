@@ -44,6 +44,17 @@ PROVIDERS: dict[str, Provider] = {
 }
 
 
+def retry_with_max_tokens(exc: BaseException) -> bool:
+    """True only when the provider rejected `max_completion_tokens` by name.
+
+    Rate limits, auth failures, and other request errors must surface on the
+    first attempt. See docs/loop/models.md.
+    """
+    if type(exc).__name__ not in {"BadRequestError", "UnprocessableEntityError"}:
+        return False
+    return "max_completion_tokens" in str(exc).lower()
+
+
 def get_client(settings: Settings):
     provider = PROVIDERS.get(settings.provider)
     if provider is None:
@@ -124,7 +135,9 @@ class OpenAICompatClient:
     def _call(self, kwargs: dict, **extra):
         try:
             return self._client.chat.completions.create(**kwargs, **extra)
-        except Exception:
+        except Exception as exc:
+            if not retry_with_max_tokens(exc):
+                raise
             k = dict(kwargs)
             k["max_tokens"] = k.pop("max_completion_tokens", None)
             return self._client.chat.completions.create(**k, **extra)

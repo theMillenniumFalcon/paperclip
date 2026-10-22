@@ -48,7 +48,7 @@ Exposes `.messages.create` and `.messages.stream` in Anthropic shape over OpenAI
 
 **`_to_openai`** — Maps system, user/assistant strings, assistant `tool_use` blocks, and `tool_result` dicts to OpenAI messages. Tool schemas: Anthropic `input_schema` → OpenAI `parameters`.
 
-**`_call`** — `chat.completions.create`; on failure, retries with `max_tokens` instead of `max_completion_tokens`.
+**`_call`** — `chat.completions.create`. On `BadRequestError` or `UnprocessableEntityError` whose message names `max_completion_tokens`, retries once with `max_tokens` (`retry_with_max_tokens`). Rate limits, auth failures, timeouts, and every other error propagate on the first attempt so they are logged once. See [errors](errors.md).
 
 **`_create`** — Builds text + `tool_use` blocks, maps usage to `input_tokens` / `output_tokens`, sets `stop_reason` to `tool_use` or `end_turn`.
 

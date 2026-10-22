@@ -23,8 +23,10 @@ Code: `paperclip/app.py`
 
 1. Observer is `compose(observer, tracer.event)` so the gateway and the trace both see events.
 2. Inside `tracer.turn`: build the system prompt, append the user message to a copy of session history, `run_loop` with `settings.model`, `max_iterations`, and `max_tokens`.
-3. `session.add_exchange` (history + `chat_log`, tagged with `source`).
-4. `maybe_consolidate`, then `export_markdown` (`MEMORY.md`).
+3. When `result.error` is set, skip history, `chat_log`, consolidation, and `MEMORY.md` so a failed call is not remembered as the assistant's answer.
+4. Otherwise `session.add_exchange` (history + `chat_log`, tagged with `source`), then `maybe_consolidate` and `export_markdown` (`MEMORY.md`).
 5. `tracer.end_turn` and return the `LoopResult`.
+
+Provider failures raised before the loop (the retrieval gate) are caught the same way: one WARNING, a reply, `LoopResult.error` set, no traceback. Other exceptions still propagate. See [provider errors](loop/errors.md).
 
 `stream=True` asks the loop to emit text deltas to the observer (dashboard chat).

@@ -588,7 +588,7 @@ Copy this and mark each line after the layer passes.
 - [x] Voice push-to-talk transcribes, replies, and rejects a tiny clip
 - [x] A second provider completes a no-tool turn and a `save_note`
 - [x] Experimental tools return "coming soon" and do nothing else
-- [ ] MCP tools from `mcp.json` are callable; a bad server is skipped
+- [x] MCP tools from `mcp.json` are callable; a bad server is skipped
 - [ ] One multi-step day (fact, event, outbox, search, retrieve) leaves a consistent `state.db`
 - [ ] CLI and Telegram share facts and do not share transcript history
 - [ ] `uv run python -m paperclip.ops.release_gate` prints `GATE OPEN` or a `GATE CLOSED` you can explain

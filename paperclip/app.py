@@ -5,6 +5,12 @@ from __future__ import annotations
 from paperclip.config import Settings, load_settings
 from paperclip.db import connect
 from paperclip.loop.agent import LoopResult, Observer, run_loop
+from paperclip.loop.errors import (
+    configure_logging,
+    log_provider_error,
+    provider_detail,
+    provider_error_reply,
+)
 from paperclip.loop.models import get_client
 from paperclip.memory import Memory
 from paperclip.ops.tracing import Tracer, compose
@@ -23,6 +29,7 @@ class Paperclip:
         self.mcp_bridge = getattr(self.tools, "mcp_bridge", None)
         self.session = Session(self.settings, memory=self.memory)
         self.tracer = Tracer(self.settings)
+        configure_logging()
 
     def close(self) -> None:
         if self.mcp_bridge is not None:
@@ -31,28 +38,38 @@ class Paperclip:
     def respond(self, user_message: str, observer: Observer | None = None,
                 source: str = "cli", stream: bool = False) -> LoopResult:
         notify = compose(observer, self.tracer.event)
+        result: LoopResult | None = None
 
-        with self.tracer.turn(user_message):
-            system = self.session.build_system(user_message, notify=notify)
-            messages = list(self.session.history) + [{"role": "user", "content": user_message}]
+        try:
+            with self.tracer.turn(user_message):
+                system = self.session.build_system(user_message, notify=notify)
+                messages = list(self.session.history) + [{"role": "user", "content": user_message}]
 
-            result = run_loop(
-                client=self.client,
-                model=self.settings.model,
-                system=system,
-                messages=messages,
-                tools=self.tools,
-                max_iterations=self.settings.max_iterations,
-                max_tokens=self.settings.max_tokens,
-                observer=notify,
-                stream=stream,
-            )
+                result = run_loop(
+                    client=self.client,
+                    model=self.settings.model,
+                    system=system,
+                    messages=messages,
+                    tools=self.tools,
+                    max_iterations=self.settings.max_iterations,
+                    max_tokens=self.settings.max_tokens,
+                    observer=notify,
+                    stream=stream,
+                )
 
-            self.session.add_exchange(user_message, result.reply, tool_calls=result.tool_calls,
-                                      source=source)
-            if self.memory is not None:
-                self.memory.maybe_consolidate(notify=notify)
-                self.memory.export_markdown()
+                if not result.error:
+                    self.session.add_exchange(user_message, result.reply, tool_calls=result.tool_calls,
+                                              source=source)
+                    if self.memory is not None:
+                        self.memory.maybe_consolidate(notify=notify)
+                        self.memory.export_markdown()
+        except Exception as exc:
+            reply = provider_error_reply(exc)
+            if reply is None:
+                raise
+            log_provider_error(exc)
+            notify("error", {"error": type(exc).__name__, "detail": provider_detail(exc)})
+            result = LoopResult(reply=reply, error=type(exc).__name__)
 
         self.tracer.end_turn(result.reply, result.iterations)
         return result
