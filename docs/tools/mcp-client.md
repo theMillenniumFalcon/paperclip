@@ -16,6 +16,10 @@ Turns [Model Context Protocol](https://modelcontextprotocol.io) **stdio** server
 
 `build_registry` starts the bridge when this file exists. A server that fails to connect is skipped (warning printed); others still register.
 
+On Windows, `command` must be `npx.cmd`. The stdio launcher does not resolve `PATHEXT`, so `npx` exits immediately and the warning is `Connection closed`.
+
+`list_tools` returns MCP `Tool` models. The JSON schema lives on the Python attribute `input_schema` (wire alias `inputSchema`). Read that attribute; alias access raises `AttributeError` and the server is skipped.
+
 ## `MCPBridge`
 
 | Method | Behavior |

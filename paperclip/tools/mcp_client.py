@@ -31,7 +31,7 @@ class MCPBridge:
                 tools.append(Tool(
                     name=f"{srv}_{meta['name']}",
                     description=f"[MCP:{srv}] {meta.get('description','') or ''}",
-                    input_schema=meta.get("inputSchema") or {"type": "object", "properties": {}},
+                    input_schema=meta.get("input_schema") or {"type": "object", "properties": {}},
                     fn=(lambda srv=srv, tname=meta["name"], **kw: self.call(srv, tname, kw)),
                 ))
         return tools
@@ -53,7 +53,7 @@ class MCPBridge:
                 await session.initialize()
                 self._sessions[name] = session
                 tools = (await session.list_tools()).tools
-                listed[name] = [{"name": t.name, "description": t.description, "inputSchema": t.inputSchema} for t in tools]
+                listed[name] = [{"name": t.name, "description": t.description, "input_schema": t.input_schema} for t in tools]
             except Exception as exc:
                 print(f"MCP server '{name}' failed to connect: {exc}")
         return listed
