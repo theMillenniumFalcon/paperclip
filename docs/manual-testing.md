@@ -582,7 +582,7 @@ Copy this and mark each line after the layer passes.
 - [x] `uv run python scripts/demo_seed.py` backs up the home and seeds the profile facts, the 2026-10-22 episode, and movie night
 - [x] `GET /api/data` matches the database; unknown routes 404
 - [x] CORS allows `http://localhost:3000` and not an unknown origin
-- [ ] `POST /api/chat` and `/api/chat/stream` complete; `source` is `dashboard`
+- [x] `POST /api/chat` and `/api/chat/stream` complete; `source` is `dashboard`
 - [x] Session `new` / `switch` and read-only `/api/query` behave
 - [x] Telegram allowlist, text replies, and a second-poller conflict
 - [x] Voice push-to-talk transcribes, replies, and rejects a tiny clip
