@@ -48,8 +48,10 @@ python -m paperclip telegram`}</code>
               rewrites a readable <code>MEMORY.md</code>.
             </p>
             <p>
-              Calendar, notes, web search, and a local outbox are the tools it
-              can call. A dashboard on localhost reads the same database.
+              Calendar, notes, web search, GitHub, and a local outbox are the
+              tools it can call. Public repositories are read even when the
+              GitHub CLI is not installed. A dashboard on localhost reads the
+              same database.
             </p>
           </div>
         </div>

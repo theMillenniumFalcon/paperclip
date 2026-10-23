@@ -8,6 +8,7 @@ You do not pick a tool by name. Ask in the conversation, and it calls the one th
 - Calendar. Add or list events. They stay on your machine. On a Mac, `PAPERCLIP_APPLE_CALENDAR=1` also tries to put them on Calendar.app.
 - Notes. Asking it to remember something writes a fact you asked for.
 - Web search. Used when the question needs the web. Set `TAVILY_API_KEY` to use Tavily. With no key, it uses DuckDuckGo.
+- GitHub. Ask for the open pull requests or issues in an `owner/name` repository. A public repository works with no extra install. A private one needs the GitHub CLI and `gh auth login` (`winget install --id GitHub.cli` on Windows, `brew install gh` on a Mac). It only reads. It will not merge, comment, close, or push.
 - Outbox. A message it "sends" is a text file under `.paperclip/outbox`. It does not send email or a chat message.
 
 A morning brief is one turn about your week, then a file:
