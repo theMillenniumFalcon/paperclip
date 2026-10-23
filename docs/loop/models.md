@@ -2,13 +2,14 @@
 
 Code: `paperclip/loop/models.py`
 
-Paperclip speaks one dialect: Anthropic **Messages** (`system`, `messages`, `tools` in; content blocks + `stop_reason` out). Three providers:
+Paperclip speaks one dialect: Anthropic **Messages** (`system`, `messages`, `tools` in; content blocks + `stop_reason` out). Four providers:
 
 | `PAPERCLIP_PROVIDER` | Wire | API key env | Default base URL |
 | --- | --- | --- | --- |
 | `anthropic` | Native Anthropic SDK | `ANTHROPIC_API_KEY` | (default) |
 | `openai` | OpenAI adapter | `OPENAI_API_KEY` | (default) |
 | `openrouter` | OpenAI adapter | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` |
+| `gemini` | OpenAI adapter | `GEMINI_API_KEY` | `https://generativelanguage.googleapis.com/v1beta/openai/` |
 
 Also: `PAPERCLIP_API_KEY` (optional override for the active provider’s key), `PAPERCLIP_MODEL`, `PAPERCLIP_SMALL_MODEL`, `PAPERCLIP_BASE_URL` (overrides provider default URL), `PAPERCLIP_LLM_TIMEOUT` (seconds, default `120`).
 
@@ -18,7 +19,7 @@ Also: `PAPERCLIP_API_KEY` (optional override for the active provider’s key), `
 | --- | --- |
 | `kind` | `anthropic` → `anthropic.Anthropic`; `openai` → `OpenAICompatClient` |
 | `key_env` | Env var for the API key when `PAPERCLIP_API_KEY` is empty |
-| `base_url` | Default OpenAI-compatible base (OpenRouter only unless overridden) |
+| `base_url` | Default OpenAI-compatible base (OpenRouter and Gemini unless overridden) |
 | `model` | Default main loop model |
 | `small_model` | Default cheap model (retrieval gate, consolidation) |
 
@@ -29,8 +30,9 @@ Default model ids (override with env or `Settings`):
 | `anthropic` | `claude-sonnet-5` | `claude-haiku-4-5-20251001` |
 | `openai` | `gpt-5.5` | `gpt-4.1-mini` |
 | `openrouter` | `nvidia/nemotron-nano-9b-v2:free` | `google/gemma-3-4b-it:free` |
+| `gemini` | `gemini-3.8-flash` | `gemini-3.5-flash-lite` |
 
-OpenAI defaults avoid reasoning-only models that reject `chat.completions` without tools. OpenRouter defaults use `:free` tiers (rate-limited).
+OpenAI defaults avoid reasoning-only models that reject `chat.completions` without tools. OpenRouter defaults use `:free` tiers (rate-limited). Gemini uses Google’s OpenAI-compatible endpoint and a Gemini API key from AI Studio.
 
 ## `get_client(settings)`
 

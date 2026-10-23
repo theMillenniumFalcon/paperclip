@@ -4,11 +4,11 @@ Code: `paperclip/tools/github.py`
 
 Read-only pull requests and issues through the `gh` CLI. Paperclip stores no GitHub token. `gh` keeps its own credentials (system keychain). Nothing is written to `.env` or `{PAPERCLIP_HOME}` for auth.
 
-If `gh` is missing or not logged in, the tool returns a sentence. It does not raise. A GitHub failure must not abort the chat turn.
+If `gh` is missing and `repo` is `owner/name`, the same read goes to the public GitHub REST API (`https://api.github.com`) with no token. That covers public pull requests, issues, and diffs. Private repositories, and any call with an empty `repo`, still need `gh` on `PATH`. A failure returns a sentence. It does not raise. A GitHub failure must not abort the chat turn.
 
 ## Setup
 
-1. Install the [GitHub CLI](https://cli.github.com/) and run `gh auth login` once on this machine.
+1. Optional for public `owner/name` reads. Required for private repos and for an empty `repo` (so `gh` can use the current directory). Install the [GitHub CLI](https://cli.github.com/) and run `gh auth login` once on this machine. On Windows: `winget install --id GitHub.cli`. On macOS: `brew install gh`.
 2. Optional: `PAPERCLIP_GITHUB_REPO=owner/name` (`settings.github_repo`). When the model omits `repo`, `github_read` fills this in. An explicit `repo` argument wins. Empty means `gh` uses its current directory.
 
 `github_read` is always registered. No extra env flag.
@@ -46,7 +46,10 @@ Refusal text names the five commands and says the tool cannot merge, comment, cl
 | List, empty | `(none open)` |
 | View or diff | `gh` stdout, stripped |
 | Diff or view longer than 8000 characters | First 8000 characters, then a line that says it was truncated and to run `gh <command> <number>` locally |
-| `gh` missing | Install hint (`brew install gh`) and `gh auth login` |
+| `gh` missing, `repo` set | Public API. List rows use the same line format. View is `#<number> <title>`, author, date, URL, then the body. Diff is the raw patch. |
+| `gh` missing, `repo` empty | Install hint and `gh auth login`. Windows says `winget install --id GitHub.cli`. macOS says `brew install gh`. Other platforms link `https://cli.github.com/`. |
+| Public API HTTP error | Status code, then the install hint (private repos need `gh`) |
+| Public issue list | Items that contain a `pull_request` key are dropped, matching `gh issue list` |
 | Timeout | 20s. Mentions `status.github.com` |
 | stderr contains `auth` or `logged in` | `gh is not authenticated. Run gh auth login.` plus the first 200 characters of stderr |
 | Other nonzero exit | First 200 characters of stderr |

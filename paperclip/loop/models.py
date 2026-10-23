@@ -41,6 +41,13 @@ PROVIDERS: dict[str, Provider] = {
         "nvidia/nemotron-nano-9b-v2:free",
         "google/gemma-3-4b-it:free",
     ),
+    "gemini": Provider(
+        "openai",
+        "GEMINI_API_KEY",
+        "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "gemini-3.8-flash",
+        "gemini-3.5-flash-lite",
+    ),
 }
 
 

@@ -106,7 +106,7 @@ def chat_stream(message: str, emit) -> None:
 # Rough $/million tokens (in, out) for a dollar ESTIMATE — the number humans
 # actually feel. Keyed by provider; deliberately approximate and labelled "est".
 PRICING = {
-    "anthropic": (3.0, 15.0), "openai": (2.5, 15.0), "gemini": (0.3, 2.5),
+    "anthropic": (3.0, 15.0), "openai": (2.5, 15.0), "gemini": (0.75, 3.75),
     "kimi": (0.6, 2.5), "glm": (0.6, 2.2),
 }
 

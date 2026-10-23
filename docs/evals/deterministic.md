@@ -42,7 +42,7 @@ Write labels (`pr merge`, `pr comment`, `issue close`, `api`, `pr create`, `repo
 
 `pr list` builds `gh pr list --repo … --limit 50 --json number,title,author,updatedAt,url` when `limit` is 99, with `shell` left false, `check` false, and a 20s timeout. The formatted line is `#7 … — @ada (updated 2026-10-01)`. `limit` `0` sends `--limit 10`. A negative limit sends `--limit 1`. An empty JSON list formats as `(none open)`.
 
-`pr diff` argv is `gh pr diff <n> --repo …`. Stdout longer than 8000 characters is cut and the reply contains `truncated at 8000`. `make_tool(default_repo)` fills `repo` when the call omits it. An explicit `repo` replaces the default. Missing `gh` mentions install and `gh auth login`. `TimeoutExpired` mentions `timed out after 20s`. Stderr that says `authentication` mentions `not authenticated`. Non-JSON list stdout starts with `gh returned something that was not JSON:`.
+`pr diff` argv is `gh pr diff <n> --repo …`. Stdout longer than 8000 characters is cut and the reply contains `truncated at 8000`. `make_tool(default_repo)` fills `repo` when the call omits it. An explicit `repo` replaces the default. Missing `gh` with an empty repo mentions install and `gh auth login` (Windows: `winget install --id GitHub.cli`). Missing `gh` with `owner/name` reads the public API; tests patch `urlopen`. A public issue list drops items that have `pull_request`. `TimeoutExpired` mentions `timed out after 20s`. Stderr that says `authentication` mentions `not authenticated`. Non-JSON list stdout starts with `gh returned something that was not JSON:`.
 
 `build_registry` includes `github_read`.
 

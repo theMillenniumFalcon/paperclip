@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import sys
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -101,10 +103,69 @@ def test_explicit_repo_overrides_the_default():
     assert run.call_args.args[0] == ["gh", "issue", "view", "3", "--repo", other]
 
 
-def test_missing_cli_timeout_and_auth():
-    with patch("paperclip.tools.github.subprocess.run", side_effect=FileNotFoundError):
-        missing = gh_read("pr list", repo=_REPO)
+class _Body:
+    def __init__(self, payload: bytes):
+        self.payload = payload
+
+    def read(self):
+        return self.payload
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+
+def test_missing_cli_without_a_repo_names_the_installer():
+    with patch("paperclip.tools.github.subprocess.run", side_effect=FileNotFoundError), \
+         patch("paperclip.tools.github.urllib.request.urlopen") as urlopen:
+        missing = gh_read("pr list")
+    urlopen.assert_not_called()
     assert "not installed" in missing and "gh auth login" in missing
+    if sys.platform == "win32":
+        assert "winget install --id GitHub.cli" in missing
+    elif sys.platform == "darwin":
+        assert "brew install gh" in missing
+    else:
+        assert "https://cli.github.com/" in missing
+
+
+def test_missing_cli_lists_public_pulls():
+    payload = json.dumps([{
+        "number": 3,
+        "title": "Add wake word",
+        "user": {"login": "sean"},
+        "updated_at": "2026-10-02T00:00:00Z",
+        "html_url": "https://github.com/octocat/Hello-World/pull/3",
+    }]).encode()
+    with patch("paperclip.tools.github.subprocess.run", side_effect=FileNotFoundError), \
+         patch("paperclip.tools.github.urllib.request.urlopen", return_value=_Body(payload)) as urlopen:
+        out = gh_read("pr list", repo=_REPO, limit=10)
+    assert "#3 Add wake word — @sean (updated 2026-10-02)" in out
+    req = urlopen.call_args.args[0]
+    assert req.full_url == (
+        "https://api.github.com/repos/octocat/Hello-World/pulls?state=open&per_page=10"
+    )
+    assert req.get_header("User-agent") == "paperclip"
+
+
+def test_public_issue_list_drops_pull_requests():
+    payload = json.dumps([
+        {"number": 1, "title": "Bug", "user": {"login": "a"},
+         "updated_at": "2026-01-01T00:00:00Z", "html_url": "https://example.test/1"},
+        {"number": 2, "title": "PR", "user": {"login": "b"},
+         "updated_at": "2026-01-02T00:00:00Z", "html_url": "https://example.test/2",
+         "pull_request": {}},
+    ]).encode()
+    with patch("paperclip.tools.github.subprocess.run", side_effect=FileNotFoundError), \
+         patch("paperclip.tools.github.urllib.request.urlopen", return_value=_Body(payload)):
+        out = gh_read("issue list", repo=_REPO)
+    assert "#1 Bug — @a (updated 2026-01-01)" in out
+    assert "#2" not in out
+
+
+def test_timeout_and_auth():
 
     import subprocess
 

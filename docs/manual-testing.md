@@ -19,7 +19,7 @@ $env:PAPERCLIP_HOME = "D:\paperclip\.paperclip-manual"
 Remove-Item -Recurse -Force $env:PAPERCLIP_HOME -ErrorAction SilentlyContinue
 ```
 
-Copy `.env.example` to `.env` if you have not already, and set the key for your provider. The default provider is Anthropic (`ANTHROPIC_API_KEY`). OpenRouter (`PAPERCLIP_PROVIDER=openrouter` plus `OPENROUTER_API_KEY`) and OpenAI (`PAPERCLIP_PROVIDER=openai` plus `OPENAI_API_KEY`) both talk through the `openai` package. `PAPERCLIP_API_KEY` overrides the provider key when set. Leave Apple, Telegram, experimental, Supabase, and OpenTelemetry unset until those layers.
+Copy `.env.example` to `.env` if you have not already, and set the key for your provider. The default provider is Anthropic (`ANTHROPIC_API_KEY`). OpenRouter (`PAPERCLIP_PROVIDER=openrouter` plus `OPENROUTER_API_KEY`), OpenAI (`PAPERCLIP_PROVIDER=openai` plus `OPENAI_API_KEY`), and Gemini (`PAPERCLIP_PROVIDER=gemini` plus `GEMINI_API_KEY`) all talk through the `openai` package. `PAPERCLIP_API_KEY` overrides the provider key when set. Leave Apple, Telegram, experimental, Supabase, and OpenTelemetry unset until those layers.
 
 Install dependencies into the project environment, then run Paperclip only through that environment:
 
@@ -66,7 +66,7 @@ Scope: the command dispatcher. No model call except the last case.
 | `uv run python -m paperclip nope` | Prints `Usage: python -m paperclip [dashboard\|voice\|telegram\|brief\|skill install <url>]` and exits 1 |
 | `uv run python -m paperclip skill` | Same usage line, exit 1 (`skill` without `install <url>` is not a command) |
 | Temporarily rename or empty the key for the active provider, then `uv run python -m paperclip` | Process exits with `No API key for provider '<name>'` |
-| Set `PAPERCLIP_PROVIDER=nope` and start again | Exits with `Unknown PAPERCLIP_PROVIDER` and the allowed names `anthropic, openai, openrouter` |
+| Set `PAPERCLIP_PROVIDER=nope` and start again | Exits with `Unknown PAPERCLIP_PROVIDER` and the allowed names `anthropic, openai, openrouter, gemini` |
 | Restore the key and provider, then `uv run python -m paperclip` | A cyan banner: product name, resolved home path, model id, and `Ctrl-D or /quit to exit` |
 
 On the successful start, confirm the home was created:
@@ -180,7 +180,7 @@ Optional, if you have a Tavily key: set `TAVILY_API_KEY`, restart, and repeat. S
 
 ### `github_read`
 
-Needs the GitHub CLI on PATH and a completed `gh auth login`. Paperclip does not store a token. A fresh home’s `SOUL.md` names this tool. An older `SOUL.md` is left as it is, so delete it (or add the rule yourself) if the model never calls `github_read`.
+Public `owner/name` repositories work without the GitHub CLI: the tool reads `https://api.github.com`. Private repositories need the GitHub CLI on PATH and a completed `gh auth login`. Paperclip does not store a token. A fresh home’s `SOUL.md` names this tool. An older `SOUL.md` is left as it is, so delete it (or add the rule yourself) if the model never calls `github_read`.
 
 Say: `List the open pull requests in <owner>/<repo>.` Use a real `owner/name`.
 
@@ -196,7 +196,7 @@ The reply should refuse. If the model still calls the tool, the tool text says t
 
 Optional: set `PAPERCLIP_GITHUB_REPO=owner/name`, restart, and ask `What issues are open?` without naming a repo. The call may omit `repo`. The tool uses that default.
 
-If `gh` is not installed, the tool says so and mentions `gh auth login`. If it is installed but not logged in, the tool says to run `gh auth login`.
+If `gh` is not installed and the question names `owner/name`, a public repository still lists. If `gh` is not installed and no repo is known, the tool says so and mentions `gh auth login` (on Windows, `winget install --id GitHub.cli`). If `gh` is installed but not logged in, the tool says to run `gh auth login`.
 
 ### `manage_memory`
 
@@ -432,12 +432,13 @@ Turn these on one at a time, against the same throwaway home, then turn them off
 
 ### Other model providers
 
-Set `PAPERCLIP_PROVIDER` to `openai` or `openrouter`, set that provider's key (`OPENAI_API_KEY` or `OPENROUTER_API_KEY`), unset `PAPERCLIP_MODEL` and `PAPERCLIP_SMALL_MODEL` so the defaults fill in, and restart.
+Set `PAPERCLIP_PROVIDER` to `openai`, `openrouter`, or `gemini`, set that provider's key (`OPENAI_API_KEY`, `OPENROUTER_API_KEY`, or `GEMINI_API_KEY`), unset `PAPERCLIP_MODEL` and `PAPERCLIP_SMALL_MODEL` so the defaults fill in, and restart.
 
 | Provider | Main model | Small model |
 | --- | --- | --- |
 | `openai` | `gpt-5.5` | `gpt-4.1-mini` |
 | `openrouter` | `nvidia/nemotron-nano-9b-v2:free` | `google/gemma-3-4b-it:free` |
+| `gemini` | `gemini-3.8-flash` | `gemini-3.5-flash-lite` |
 
 Repeat layer 1 (arithmetic, no tool) and one `save_note` from layer 2. The banner shows the resolved model. `usage.jsonl` records that provider. OpenRouter free models are rate-limited; a failure should surface as an error string, not a hung process (`PAPERCLIP_LLM_TIMEOUT` defaults to 120 seconds).
 
