@@ -88,19 +88,29 @@ export default async function DocsPage({
           </ReactMarkdown>
         </article>
         {previous || next ? (
-          <p className="mt-12 border-t border-stone-800 pt-6 text-stone-500">
-            {previous ? (
-              <>
-                Previous <Link href={previous.href}>{previous.title}</Link>
-              </>
-            ) : null}
-            {previous && next ? " · " : null}
-            {next ? (
-              <>
-                Next <Link href={next.href}>{next.title}</Link>
-              </>
-            ) : null}
-          </p>
+          <div className="mt-12 flex items-baseline justify-between border-t border-stone-800 pt-6 text-stone-500">
+            <p className="m-0">
+              {previous ? (
+                <>
+                  Previous <Link href={previous.href}>{previous.title}</Link>
+                </>
+              ) : null}
+              {previous && next ? " · " : null}
+              {next ? (
+                <>
+                  Next <Link href={next.href}>{next.title}</Link>
+                </>
+              ) : null}
+            </p>
+            <p className="prose m-0">
+              <a
+                href="https://github.com/theMillenniumFalcon/paperclip"
+                target="_blank"
+              >
+                GitHub
+              </a>
+            </p>
+          </div>
         ) : null}
       </main>
     </DocsFrame>

@@ -28,9 +28,9 @@ export default function Home() {
           <h2 className="text-stone-100 font-hammersmith text-lg! mb-4">
             Where you talk to it
           </h2>
-          <div className="space-y-4 prose">
+          <div className="space-y-4 prose w-full max-w-none!">
           <p>Terminal, microphone, or Telegram. One assistant, three doors.</p>
-          <pre>
+          <pre className="w-full">
             <code>{`paperclip
 paperclip voice
 paperclip telegram`}</code>
@@ -72,12 +72,22 @@ paperclip`}</code>
           </div>
         </div>
 
-        <p className="text-stone-500 prose">
-          Built by{" "}
-          <a href="https://github.com/themillenniumfalcon" target="_blank">
-            themillenniumfalcon
-          </a>
-        </p>
+        <div className="flex items-baseline justify-between">
+          <p className="text-stone-500 prose m-0">
+            Built by{" "}
+            <a href="https://github.com/themillenniumfalcon" target="_blank">
+              themillenniumfalcon
+            </a>
+          </p>
+          <p className="prose text-stone-500 m-0">
+            <a
+              href="https://github.com/theMillenniumFalcon/paperclip"
+              target="_blank"
+            >
+              GitHub
+            </a>
+          </p>
+        </div>
       </main>
     </div>
   );
