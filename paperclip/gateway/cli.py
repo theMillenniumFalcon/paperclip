@@ -29,7 +29,7 @@ def main() -> None:
     console.print(Panel.fit(
         "[bold]Paperclip[/bold] — local, yours, transparent.\n"
         f"home: {paperclip.settings.home.resolve()}   model: {paperclip.settings.model}\n"
-        "Ctrl-D or /quit to exit.",
+        "Ctrl-C or /quit to exit.",
         border_style="cyan",
     ))
     while True:

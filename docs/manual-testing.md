@@ -575,7 +575,7 @@ Copy this and mark each line after the layer passes.
 - [x] `create_skill` writes a skill that matches a later message and refuses a duplicate name
 - [x] A second CLI process reloads `terminal` history
 - [x] Personal questions retrieve; arithmetic skips
-- [ ] With `PAPERCLIP_CONSOLIDATE_EVERY=2`, facts, one episode, and `consolidated = 1` appear
+- [x] With `PAPERCLIP_CONSOLIDATE_EVERY=2`, facts, one episode, and `consolidated = 1` appear
 - [x] `brief` writes `outbox/brief-<date>.txt` with `source=brief`
 - [x] `skill install` saves one valid skill and rejects bad frontmatter
 - [x] `uv run python scripts/validate_skills.py` prints `skill validation OK`
@@ -589,6 +589,6 @@ Copy this and mark each line after the layer passes.
 - [x] A second provider completes a no-tool turn and a `save_note`
 - [x] Experimental tools return "coming soon" and do nothing else
 - [x] MCP tools from `mcp.json` are callable; a bad server is skipped
-- [ ] One multi-step day (fact, event, outbox, search, retrieve) leaves a consistent `state.db`
-- [ ] CLI and Telegram share facts and do not share transcript history
+- [x] One multi-step day (fact, event, outbox, search, retrieve) leaves a consistent `state.db`
+- [x] CLI and Telegram share facts and do not share transcript history
 - [x] `uv run python -m paperclip.ops.release_gate` prints `GATE OPEN` or a `GATE CLOSED` you can explain
