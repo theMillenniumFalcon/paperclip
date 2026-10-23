@@ -135,14 +135,14 @@ def test_missing_cli_lists_public_pulls():
     payload = json.dumps([{
         "number": 3,
         "title": "Add wake word",
-        "user": {"login": "sean"},
+        "user": {"login": "nishank"},
         "updated_at": "2026-10-02T00:00:00Z",
         "html_url": "https://github.com/octocat/Hello-World/pull/3",
     }]).encode()
     with patch("paperclip.tools.github.subprocess.run", side_effect=FileNotFoundError), \
          patch("paperclip.tools.github.urllib.request.urlopen", return_value=_Body(payload)) as urlopen:
         out = gh_read("pr list", repo=_REPO, limit=10)
-    assert "#3 Add wake word — @sean (updated 2026-10-02)" in out
+    assert "#3 Add wake word — @nishank (updated 2026-10-02)" in out
     req = urlopen.call_args.args[0]
     assert req.full_url == (
         "https://api.github.com/repos/octocat/Hello-World/pulls?state=open&per_page=10"
