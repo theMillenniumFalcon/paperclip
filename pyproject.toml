@@ -29,6 +29,9 @@ dependencies = [
 [project.scripts]
 paperclip = "paperclip.__main__:main"
 
+[tool.hatch.build.targets.sdist]
+only-include = ["paperclip", "README.md", ".env.example"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["paperclip"]
 
