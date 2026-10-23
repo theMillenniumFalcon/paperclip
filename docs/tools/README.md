@@ -15,6 +15,7 @@ Always registered:
 | `save_note` | [notes.md](notes.md) |
 | `send_message` | [messages.md](messages.md) |
 | `search_web` | [search.md](search.md) |
+| `github_read` | [github.md](github.md) |
 
 When `memory` is passed: `manage_memory`, `update_soul`, `create_skill` — [memory-admin.md](memory-admin.md).
 
@@ -37,6 +38,7 @@ Missing `mcp` package: print install hint `pip install 'paperclip[mcp]'` and con
 | `notes.py` | [notes.md](notes.md) |
 | `messages.py` | [messages.md](messages.md) |
 | `search.py` | [search.md](search.md) |
+| `github.py` | [github.md](github.md) |
 | `memory_admin.py` | [memory-admin.md](memory-admin.md) |
 | `apple.py` | [apple.md](apple.md) |
 | `experimental.py` | [experimental.md](experimental.md) |
@@ -52,3 +54,4 @@ Missing `mcp` package: print install hint `pip install 'paperclip[mcp]'` and con
 | `PAPERCLIP_EXPERIMENTAL` | Register stub tools |
 | `TAVILY_API_KEY` or `PAPERCLIP_SEARCH_API_KEY` | Prefer Tavily over DuckDuckGo |
 | `PAPERCLIP_HOME` | Outbox, `calendar.ics`, `mcp.json`, skills, `SOUL.md` |
+| `PAPERCLIP_GITHUB_REPO` | Default `owner/name` when `github_read` is called without `repo` |

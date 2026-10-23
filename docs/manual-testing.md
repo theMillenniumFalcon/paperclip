@@ -178,6 +178,26 @@ Expect `search_web`. With no `TAVILY_API_KEY` and no `PAPERCLIP_SEARCH_API_KEY`,
 
 Optional, if you have a Tavily key: set `TAVILY_API_KEY`, restart, and repeat. Snippets should be present and no longer than about 400 characters. A nonsense query can return the “try a more specific query” line.
 
+### `github_read`
+
+Needs the GitHub CLI on PATH and a completed `gh auth login`. Paperclip does not store a token. A fresh home’s `SOUL.md` names this tool. An older `SOUL.md` is left as it is, so delete it (or add the rule yourself) if the model never calls `github_read`.
+
+Say: `List the open pull requests in <owner>/<repo>.` Use a real `owner/name`.
+
+Expect `github_read` with command `pr list`. Each open PR is one line: `#<number> <title> — @<login> (updated YYYY-MM-DD)`. No open PRs returns `(none open)`.
+
+Say: `Show the diff for pull request <number> in <owner>/<repo>.`
+
+Expect command `pr diff`. Output longer than 8000 characters stops there and says it was truncated.
+
+Say: `Merge that pull request.`
+
+The reply should refuse. If the model still calls the tool, the tool text says the GitHub tool is read-only, lists `issue list`, `issue view`, `pr diff`, `pr list`, and `pr view`, and says it cannot merge, comment, close, edit, or push.
+
+Optional: set `PAPERCLIP_GITHUB_REPO=owner/name`, restart, and ask `What issues are open?` without naming a repo. The call may omit `repo`. The tool uses that default.
+
+If `gh` is not installed, the tool says so and mentions `gh auth login`. If it is installed but not logged in, the tool says to run `gh auth login`.
+
 ### `manage_memory`
 
 Say: `Search my memory for the bike lock.`
@@ -543,7 +563,7 @@ uv run python -m pytest -q evals/deterministic
 uv run python -m paperclip.ops.release_gate
 ```
 
-Deterministic tests do not need a key. They cover scripted `create_event` (including the duplicate), history recording tool use, a no-tool turn finishing in one iteration, the iteration cap, wake-word matching, TTS text cleanup, and the session clock.
+Deterministic tests do not need a key. They cover scripted `create_event` (including the duplicate), history recording tool use, a no-tool turn finishing in one iteration, the iteration cap, wake-word matching, TTS text cleanup, the session clock, and the `github_read` allowlist (write commands and bad repos never start `gh`).
 
 The release gate:
 
@@ -570,6 +590,7 @@ Copy this and mark each line after the layer passes.
 - [x] `list_events` returns that event
 - [x] `send_message` writes an outbox file and does not send it
 - [x] `search_web` returns links or a clear backend failure
+- [ ] `github_read` lists or shows a pull request, and a merge request is refused
 - [x] `manage_memory` can search, update, and delete a fact
 - [x] `update_soul` appends a bullet under `## Learned rules`
 - [x] `create_skill` writes a skill that matches a later message and refuses a duplicate name

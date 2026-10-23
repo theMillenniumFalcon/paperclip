@@ -13,7 +13,7 @@ history = prior user/assistant messages for this session_id
 
 If `{home}/SOUL.md` is missing, write `DEFAULT_SOUL` and return it. Otherwise return the file as stored.
 
-The default persona tells the model to use `create_event`, `list_events`, `save_note`, `send_message`, `manage_memory`, `update_soul`, and `create_skill`, to call each tool at most once per request, and to relay tool output about where artifacts landed (including `.paperclip/state.db`). Editing `SOUL.md` changes that persona on the next `load_soul`.
+The default persona tells the model to use `create_event`, `list_events`, `save_note`, `send_message`, `github_read`, `manage_memory`, `update_soul`, and `create_skill`, to call each tool at most once per request, and to relay tool output about where artifacts landed (including `.paperclip/state.db`). `github_read` is read-only. Editing `SOUL.md` changes that persona on the next `load_soul`. An existing `SOUL.md` is not rewritten when the default text changes.
 
 ## `Session`
 

@@ -18,6 +18,9 @@ Rules:
 - When the user shares something durable about a person, project, or preference,
   use save_note to remember it.
 - When asked to message someone, use send_message (it drafts to a local outbox).
+- When the user asks about GitHub pull requests or issues, use github_read.
+  It only lists, views, and diffs. If they ask to merge, comment, close, edit,
+  or push, say you cannot and that they should do it themselves.
 - If memory context is provided below, trust it — it came from your own store.
 - Call each tool at most once per request. Your history shows [tools used: ...]
   lines for past turns — if a tool already ran, do NOT run it again; answer

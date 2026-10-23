@@ -6,7 +6,7 @@ import os
 import sqlite3
 
 from paperclip.config import Settings
-from paperclip.tools import calendar, memory_admin, messages, notes, search
+from paperclip.tools import calendar, github, memory_admin, messages, notes, search
 from paperclip.tools.registry import ToolRegistry
 
 
@@ -17,6 +17,7 @@ def build_registry(conn: sqlite3.Connection, settings: Settings, memory=None) ->
     registry.register(notes.make_tool(conn))
     registry.register(messages.make_tool(settings.home))
     registry.register(search.make_tool())
+    registry.register(github.make_tool(settings.github_repo))
 
     if memory is not None:
         registry.register(memory_admin.make_manage_memory_tool(memory))

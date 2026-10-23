@@ -34,6 +34,7 @@ class Settings:
     otel_endpoint: str = field(
         default_factory=lambda: os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
     )
+    github_repo: str = field(default_factory=lambda: os.getenv("PAPERCLIP_GITHUB_REPO", ""))
 
     def ensure_home(self) -> Path:
         self.home.mkdir(parents=True, exist_ok=True)

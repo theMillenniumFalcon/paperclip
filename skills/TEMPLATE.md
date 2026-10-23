@@ -7,7 +7,7 @@ description: One sentence saying what this skill does AND when to use it. The lo
 
 Step-by-step guidance for the model. Be concrete: name the tools to call, the defaults to assume, and the tone to take.
 
-Tools that exist: `create_event`, `list_events`, `save_note`, `send_message` (local outbox only), `search_web`, `manage_memory`, `update_soul`, `create_skill`.
+Tools that exist: `create_event`, `list_events`, `save_note`, `send_message` (local outbox only), `search_web`, `github_read` (read-only `gh`), `manage_memory`, `update_soul`, `create_skill`.
 
 ## Where it lives
 

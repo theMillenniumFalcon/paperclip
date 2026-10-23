@@ -25,5 +25,6 @@ Code: `paperclip/config.py`
 | `apple_tools` | `PAPERCLIP_APPLE_TOOLS` | same |
 | `telegram_token` | `TELEGRAM_BOT_TOKEN` | empty |
 | `otel_endpoint` | `OTEL_EXPORTER_OTLP_ENDPOINT` | empty (JSONL traces only) |
+| `github_repo` | `PAPERCLIP_GITHUB_REPO` | empty (no default repo for `github_read`) |
 
 Providers: [loop models](loop/models.md).
