@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "paperclip-agent"
-version = "0.1.1"
-description = "Local personal assistant"
+version = "0.1.2"
+description = "Local personal assistant for terminal, voice, and Telegram, with memory that stays on your machine."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
