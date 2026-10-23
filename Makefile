@@ -1,7 +1,7 @@
 # paperclip-agent — one command per pillar.
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python)
 
-.PHONY: run voice telegram brief dashboard trace eval eval-judge gate lint
+.PHONY: run voice telegram brief api trace eval eval-judge gate lint
 
 run:            ## chat with Paperclip in the terminal
 	$(PY) -m paperclip
@@ -15,8 +15,8 @@ telegram:       ## phone → laptop (needs TELEGRAM_BOT_TOKEN in .env)
 brief:          ## morning briefing from calendar + mail + memory
 	$(PY) -m paperclip brief
 
-dashboard:      ## everything on one page — http://localhost:7777
-	$(PY) -m paperclip.ops.dashboard
+api:            ## local JSON API — http://localhost:7777
+	$(PY) -m paperclip api
 
 trace:          ## deep trace waterfalls (Phoenix) at http://localhost:6006
 	$(PY) -m phoenix.server.main serve

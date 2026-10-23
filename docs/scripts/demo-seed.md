@@ -2,7 +2,7 @@
 
 Code: `scripts/demo_seed.py`
 
-Reset `{PAPERCLIP_HOME}` (default `.paperclip`) to a small, curated state for a recording. The old home is copied aside first. `state.db` is cleared in place, never deleted, so a running CLI, dashboard, or `make telegram` keeps a valid connection to the same file.
+Reset `{PAPERCLIP_HOME}` (default `~/.paperclip`) to a small, curated state for a recording. The old home is copied aside first. `state.db` is cleared in place, never deleted, so a running CLI, dashboard, or `make telegram` keeps a valid connection to the same file.
 
 ```bash
 python scripts/demo_seed.py                 # clean slate, keeps usage.jsonl
@@ -36,4 +36,4 @@ When the home directory already exists:
 
 Edit `FACTS`, `EPISODE`, and `EVENT` in the script before recording. Apple Calendar sync stays off (`make_tool` is called without `apple_calendar`).
 
-After it finishes, run `python -m paperclip dashboard` (or `make dashboard`).
+After it finishes, run `paperclip api` (or `make api`).

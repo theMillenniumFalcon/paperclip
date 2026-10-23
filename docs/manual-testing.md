@@ -2,7 +2,7 @@
 
 How to exercise Paperclip by hand, from one process start up to a full conversation that writes memory, files, and traces.
 
-This covers the Python app: `paperclip/`, `evals/`, `scripts/`, and `skills/`. It does not cover the Next.js apps in `web/` and `dashboard/`. The stdlib HTTP API in `paperclip/ops/dashboard.py` is included, because it is part of the Python process. The cockpit UI that calls it is not.
+This covers the Python app: `paperclip/`, `evals/`, `scripts/`, and `skills/`. It does not cover the Next.js apps in `web/` and `dashboard/`. The stdlib HTTP API in `paperclip/ops/api.py` is included, because it is part of the Python process. The cockpit UI that calls it is not.
 
 Run the layers in order. Each layer assumes the one before it passed. Stop at the first failure and fix that before widening the scope. Model wording will vary; judge a turn by the **side effect** (a database row, a file, an observer line), not by the exact sentence in the reply.
 
@@ -36,7 +36,7 @@ Every later `python` command in this doc is prefixed with `uv run`. A bare `pyth
 ModuleNotFoundError: No module named 'openai'
 ```
 
-The process itself still prints `Usage: python -m paperclip ...`. That line is the program's help text. Launch it with `uv run python -m paperclip`.
+The process itself still prints `Usage: paperclip ...`. That line is the program's help text. Launch it with `uv run python -m paperclip`.
 
 ## What one turn does
 
@@ -63,7 +63,7 @@ Scope: the command dispatcher. No model call except the last case.
 
 | Do | Expect |
 | --- | --- |
-| `uv run python -m paperclip nope` | Prints `Usage: python -m paperclip [dashboard\|voice\|telegram\|brief\|skill install <url>]` and exits 1 |
+| `uv run python -m paperclip nope` | Prints `Usage: paperclip [api\|voice\|telegram\|brief\|skill install <url>]` and exits 1 |
 | `uv run python -m paperclip skill` | Same usage line, exit 1 (`skill` without `install <url>` is not a command) |
 | Temporarily rename or empty the key for the active provider, then `uv run python -m paperclip` | Process exits with `No API key for provider '<name>'` |
 | Set `PAPERCLIP_PROVIDER=nope` and start again | Exits with `Unknown PAPERCLIP_PROVIDER` and the allowed names `anthropic, openai, openrouter, gemini` |
@@ -340,10 +340,10 @@ Start the CLI and ask `When is movie night?` The gate should retrieve, and the r
 
 ## Layer 6 — HTTP API
 
-Scope: `paperclip/ops/dashboard.py` only. Do not start the Next.js app.
+Scope: `paperclip/ops/api.py` only. Do not start the Next.js app.
 
 ```powershell
-uv run python -m paperclip dashboard
+uv run python -m paperclip api
 ```
 
 Expected: `Paperclip API -> http://localhost:7777`. If 7777 is taken, it tries the next ports up to +9 and prints each skip. If `TELEGRAM_BOT_TOKEN` is set, it also starts a background Telegram poller; leave the token unset for this layer.
@@ -394,7 +394,7 @@ Expect: `Paperclip is listening on Telegram`. Send a plain text message. The lap
 | Unset the token and start | Exit with instructions to set `TELEGRAM_BOT_TOKEN` |
 | Start a second `uv run python -m paperclip telegram` with the same token | The second poller reports a conflict. Stop one of them |
 
-Dashboard interaction: with the token set, `uv run python -m paperclip dashboard` starts the poller on a daemon thread and prints `Telegram gateway → listening in the background`. A phone message during that run is handled. Do not also run `uv run python -m paperclip telegram`; the second poller hits the one-time conflict hint.
+Dashboard interaction: with the token set, `uv run python -m paperclip api` starts the poller on a daemon thread and prints `Telegram gateway → listening in the background`. A phone message during that run is handled. Do not also run `uv run python -m paperclip telegram`; the second poller hits the one-time conflict hint.
 
 ### Voice
 

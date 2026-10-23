@@ -33,7 +33,7 @@ Builds a `python-telegram-bot` `Application`:
 
 ## `start_in_background() -> bool`
 
-For `paperclip dashboard`: run Telegram on a **daemon thread** with its **own asyncio loop**. Must not crash the dashboard.
+For `paperclip api`: run Telegram on a **daemon thread** with its **own asyncio loop**. Must not crash the API.
 
 | Condition | Return |
 | --- | --- |

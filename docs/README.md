@@ -6,7 +6,7 @@
 - [Database](db.md) — `state.db` schema (`paperclip/db.py`)
 - [Config](config.md) — env settings (`paperclip/config.py`)
 - [App](app.md) — one turn (`paperclip/app.py`)
-- [Commands](main.md) — `python -m paperclip` (`paperclip/__main__.py`)
+- [Commands](main.md) — `paperclip` (`paperclip/__main__.py`)
 - [Runtime](runtime/README.md) — per-turn working memory (`paperclip/runtime/`)
 - [Loop](loop/README.md) — LLM providers and client (`paperclip/loop/`)
 - [Gateway](gateway/README.md) — terminal REPL (`paperclip/gateway/`)

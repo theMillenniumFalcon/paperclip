@@ -1,6 +1,6 @@
 # Paperclip
 
-Paperclip is a local personal assistant. The terminal, a microphone, and Telegram all reach the same agent. What it remembers stays in a folder on that machine (`PAPERCLIP_HOME`, default `.paperclip`). Nothing is copied to a hosted account.
+Paperclip is a local personal assistant. The terminal, a microphone, and Telegram all reach the same agent. What it remembers stays in a folder on that machine (`PAPERCLIP_HOME`, default `~/.paperclip`). Nothing is copied to a hosted account.
 
 One turn is: decide whether to search memory, inject matching skills, call the model with tools until it replies, then log the exchange and sometimes file what it learned.
 
@@ -13,19 +13,25 @@ Voice also needs a microphone. The packages for speech (`faster-whisper`, `sound
 
 ## Install
 
-Dependencies come from `pyproject.toml` through [uv](https://docs.astral.sh/uv/). From the project folder:
+[uv](https://docs.astral.sh/uv/) installs the published package. The PyPI name is `paperclip-agent`. The command is `paperclip`.
+
+```bash
+uv tool install paperclip-agent
+paperclip
+```
+
+The first launch creates `~/.paperclip/.env` (your user home on every OS, `%USERPROFILE%\.paperclip` on Windows). Put your key on `ANTHROPIC_API_KEY` in that file and run `paperclip` again. That is the only line the default setup needs. The same folder holds memory, wherever you start the command.
+
+From a checkout of this repo, dependencies come from `pyproject.toml`:
 
 ```bash
 uv sync
+uv run paperclip
 ```
 
-That creates `.venv` and installs this package in editable mode. Copy `.env.example` to `.env`. Put your key on `ANTHROPIC_API_KEY`. That is the only line the default setup needs.
+That creates `.venv` and installs this package in editable mode. A `.env` in the repo fills keys the home file left blank. Set `PAPERCLIP_HOME` to keep memory somewhere else (this repo's old default was a `.paperclip` folder next to the code).
 
-```bash
-uv run python -m paperclip
-```
-
-Run every Python command with `uv run`. A bare `python` on PATH is a different interpreter and does not have the packages from `pyproject.toml`. The process help text still says `python -m paperclip`; launch it with `uv run`.
+Run every Python command with `uv run`. A bare `python` on PATH is a different interpreter and does not have the packages from `pyproject.toml`. `python -m paperclip` is the same program. The help text says `paperclip`.
 
 The banner shows where memory lives and which model is answering. Empty lines are ignored. Leave with `/quit`, `/exit`, or Ctrl-D. Closing the terminal does not delete memory.
 
@@ -33,14 +39,14 @@ The banner shows where memory lives and which model is answering. Empty lines ar
 
 | Command | What it does |
 | --- | --- |
-| `uv run python -m paperclip` | Terminal chat |
-| `uv run python -m paperclip voice` | Microphone in, speech out |
-| `uv run python -m paperclip telegram` | Telegram long-polling (laptop stays the host) |
-| `uv run python -m paperclip dashboard` | Local JSON API for the cockpit (`127.0.0.1`, default port `7777`) |
-| `uv run python -m paperclip brief` | One morning-brief turn, saved under the outbox |
-| `uv run python -m paperclip skill install <url>` | Download a `SKILL.md` into `{PAPERCLIP_HOME}/skills/` |
+| `uv run paperclip` | Terminal chat |
+| `uv run paperclip voice` | Microphone in, speech out |
+| `uv run paperclip telegram` | Telegram long-polling (laptop stays the host) |
+| `uv run paperclip api` | Local JSON API for the cockpit (`127.0.0.1`, default port `7777`) |
+| `uv run paperclip brief` | One morning-brief turn, saved under the outbox |
+| `uv run paperclip skill install <url>` | Download a `SKILL.md` into `{PAPERCLIP_HOME}/skills/` |
 
-On Unix, the `Makefile` wraps the same entry points (`make run`, `make voice`, `make telegram`, `make brief`, `make dashboard`, `make eval`, `make eval-judge`, `make gate`). It uses `.venv/bin/python` when `uv sync` has created that interpreter.
+On Unix, the `Makefile` wraps the same entry points (`make run`, `make voice`, `make telegram`, `make brief`, `make api`, `make eval`, `make eval-judge`, `make gate`). It uses `.venv/bin/python` when `uv sync` has created that interpreter.
 
 ## Model providers
 
@@ -90,7 +96,7 @@ A small model decides whether this turn needs a search (`PAPERCLIP_RETRIEVAL_TOP
 `MEMORY.md` is a readable export of SQL. The database is the source of truth: `{PAPERCLIP_HOME}/state.db`.
 
 ```bash
-sqlite3 .paperclip/state.db ".tables"
+sqlite3 ~/.paperclip/state.db ".tables"
 ```
 
 ## Tools
@@ -117,7 +123,7 @@ Opt-in:
 Morning brief:
 
 ```bash
-uv run python -m paperclip brief
+uv run paperclip brief
 ```
 
 The file is `{PAPERCLIP_HOME}/outbox/brief-YYYY-MM-DD.txt`.
@@ -125,7 +131,7 @@ The file is `{PAPERCLIP_HOME}/outbox/brief-YYYY-MM-DD.txt`.
 ## Voice
 
 ```bash
-uv run python -m paperclip voice
+uv run paperclip voice
 ```
 
 Speech is transcribed on the machine (faster-whisper). By default it waits for a wake phrase (`paperclip`, `paper clip`, `paperclip paperclip`, and a few variants), answers `Yes?` (`PAPERCLIP_WAKE_ACK`), then listens. After a reply it stays open for `PAPERCLIP_FOLLOWUP_SECONDS` (default 8) so you can continue without the phrase.
@@ -145,19 +151,19 @@ The assistant still runs on your computer. The process calls Telegram, so you do
 3. Set `TELEGRAM_ALLOWED_USER` to your numeric Telegram id (from @userinfobot). If this is empty, anyone who finds the bot can talk to your assistant.
 
 ```bash
-uv run python -m paperclip telegram
+uv run paperclip telegram
 ```
 
 Only plain messages are answered. Bot commands are ignored. If the allowlist is set, other people get a short refusal. The laptop prints the message and the reply; you read the reply in Telegram.
 
-If the dashboard is running and `TELEGRAM_BOT_TOKEN` is set, the poller also starts in the background.
+If the API is running and `TELEGRAM_BOT_TOKEN` is set, the poller also starts in the background.
 
-## Dashboard
+## API
 
 The API and the UI are separate.
 
 ```bash
-uv run python -m paperclip dashboard
+uv run paperclip api
 ```
 
 That binds a stdlib HTTP server to `127.0.0.1`. Port is `PAPERCLIP_DASHBOARD_PORT`, else `PORT`, else `7777`. If the port is busy, the next ports up to +9 are tried. Startup prints `Paperclip API -> http://localhost:<port>`.
@@ -182,7 +188,8 @@ Traces always append to `{home}/traces/YYYY-MM-DD.jsonl`. Token use is appended 
 `ensure_home()` creates `home`, `home/traces`, and `home/outbox`. A running install typically looks like this:
 
 ```
-.paperclip/
+~/.paperclip/
+  .env              # API keys. Created on first launch.
   state.db          # facts, episodes, chat_log, calendar
   MEMORY.md         # export of memory
   SOUL.md           # persona
@@ -195,14 +202,14 @@ Traces always append to `{home}/traces/YYYY-MM-DD.jsonl`. Token use is appended 
   eval_runs.jsonl   # gate history
 ```
 
-`PAPERCLIP_HOME` changes the path. The folder is gitignored.
+`PAPERCLIP_HOME` changes the path. A `.paperclip` folder inside this repo is gitignored.
 
 ## Skills
 
 A skill is a `SKILL.md` with YAML frontmatter (`name`, `description`) and instructions. The loader keeps a skill when the user message shares at least two words (3+ letters) with the name and description. Copy `skills/TEMPLATE.md` into `skills/<name>/SKILL.md` (repo) or `{home}/skills/<name>/SKILL.md` (this machine).
 
 ```bash
-uv run python -m paperclip skill install <url>
+uv run paperclip skill install <url>
 uv run python scripts/validate_skills.py
 ```
 
@@ -233,7 +240,7 @@ paperclip/          # the agent
   memory/           # facts, episodes, skills, gate, consolidation
   runtime/          # SOUL.md and in-memory history
   tools/            # functions the model can call
-  ops/              # dashboard API, traces, brief, release gate
+  ops/              # JSON API, traces, brief, release gate
 evals/              # deterministic tests and LLM judge
 dashboard/          # Next.js cockpit
 web/                # user docs site
@@ -250,7 +257,7 @@ skills/             # repo skills
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | empty | Required for the default provider |
 | `PAPERCLIP_PROVIDER` | `anthropic` | `anthropic`, `openai`, `openrouter`, `gemini` |
-| `PAPERCLIP_HOME` | `.paperclip` | Memory, traces, outbox, skills |
+| `PAPERCLIP_HOME` | `~/.paperclip` | Memory, traces, outbox, skills |
 | `PAPERCLIP_MODEL` | provider default | Main loop model |
 | `PAPERCLIP_SMALL_MODEL` | provider default | Retrieval gate and consolidation |
 | `TAVILY_API_KEY` | empty | Web search. Unset uses DuckDuckGo |

@@ -8,9 +8,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
+from paperclip.config import load_env
 
-load_dotenv()  # the key check below must see .env, same as the app does
+load_env()  # the key check below must see the home .env, same as the app does
 
 REPO = Path(__file__).resolve().parents[2]
 

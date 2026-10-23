@@ -66,7 +66,7 @@ def start_in_background() -> bool:
 
         if isinstance(exc, Conflict) and not warned["conflict"]:
             warned["conflict"] = True
-            print("(telegram) another instance is already running this bot — the dashboard's "
+            print("(telegram) another instance is already running this bot — the API's "
                   "Telegram stays idle. Stop the other `paperclip telegram` and restart to use it here.")
 
     def run() -> None:

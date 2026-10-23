@@ -3,7 +3,7 @@ title: "Memory"
 description: "Facts, days, and skills, in a folder you can open."
 ---
 
-Everything lives under `.paperclip`, next to where you started Paperclip. `PAPERCLIP_HOME` changes that path.
+Everything lives under `~/.paperclip` in your user home, no matter which directory you start from. `PAPERCLIP_HOME` changes that path.
 
 Three kinds of memory:
 
@@ -18,7 +18,7 @@ You can also ask it to remember something on purpose. That note is saved as a fa
 To add a skill from a URL:
 
 ```bash
-python -m paperclip skill install <url>
+paperclip skill install <url>
 ```
 
-The file lands in `.paperclip/skills`. Nothing here is copied to a hosted account.
+The file lands in `~/.paperclip/skills`. Nothing here is copied to a hosted account.

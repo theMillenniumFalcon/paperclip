@@ -7,7 +7,7 @@ import os
 from dataclasses import dataclass
 from types import SimpleNamespace
 
-from paperclip.config import Settings
+from paperclip.config import Settings, env_file
 
 
 @dataclass(frozen=True)
@@ -74,7 +74,7 @@ def get_client(settings: Settings):
     if not api_key:
         raise SystemExit(
             f"No API key for provider '{settings.provider}'. "
-            f"Set {provider.key_env} in .env (see .env.example)."
+            f"Set {provider.key_env} in {env_file()}."
         )
 
     settings.model = settings.model or provider.model

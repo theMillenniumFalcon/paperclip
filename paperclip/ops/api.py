@@ -1,5 +1,4 @@
-"""Local dashboard API server (frontend lives in a separate Next.js app).
-See docs/ops/dashboard.md."""
+"""Local JSON API (the cockpit UI lives in the Next.js app). See docs/ops/api.md."""
 
 from __future__ import annotations
 
@@ -580,7 +579,7 @@ def reveal_path(rel: str) -> dict:
     home = settings.home.resolve()
     target = (home / (rel or ".")).resolve()
     if target != home and home not in target.parents:
-        return {"error": "path is outside the .paperclip home"}
+        return {"error": "path is outside the Paperclip home"}
     if not target.exists():
         return {"error": f"not found: {target}"}
 
@@ -673,11 +672,12 @@ def settings_info() -> dict:
 
 
 def apply_settings(payload: dict) -> dict:
-    """Write .env + os.environ, then rebuild the agent so the switch is live.
+    """Write the home .env and os.environ, then rebuild the agent so the switch is live.
     Never logs keys; only whitelisted env names are writable."""
     global _agent
-    from dotenv import find_dotenv, set_key
+    from dotenv import set_key
 
+    from paperclip.config import env_file
     from paperclip.loop.models import PROVIDERS
 
     provider = payload.get("provider")
@@ -685,7 +685,10 @@ def apply_settings(payload: dict) -> dict:
         return {"error": f"unknown provider {provider}"}
     writable = ({"PAPERCLIP_PROVIDER", "PAPERCLIP_MODEL", "PAPERCLIP_SMALL_MODEL", "TAVILY_API_KEY"}
                 | {p.key_env for p in PROVIDERS.values()})
-    env_path = find_dotenv(usecwd=True) or ".env"
+    env_path = env_file()
+    env_path.parent.mkdir(parents=True, exist_ok=True)
+    if not env_path.exists():
+        env_path.write_text("", encoding="utf-8")
 
     updates = {"PAPERCLIP_PROVIDER": provider,
                "PAPERCLIP_MODEL": payload.get("model", "") or "",

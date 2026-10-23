@@ -50,6 +50,10 @@ Write labels (`pr merge`, `pr comment`, `issue close`, `api`, `pr create`, `repo
 
 Offline. A client that raises `RateLimitError` (status 429, OpenRouter-style `body`) makes `respond` return the rate-limit reply with `free-models-per-day` and `error="RateLimitError"`. The credits sentence in that body is absent from the reply and the warning. The main model is not called again, and `chat_log` stays empty. A `ValueError` from the model call still propagates after the gate fails open. `retry_with_max_tokens` is true only for a bad request that names `max_completion_tokens`.
 
+## `test_config.py`
+
+`default_home()` is `~/.paperclip`. With no `PAPERCLIP_HOME` in the environment, a project `.env` can still set it. `load_env()` lets the home `.env` win over the project `.env`, skips blank values so the project file can fill them, and does not override a variable already in the process environment. The first call in an empty home copies the example and a later call leaves an edited file in place. `evals/conftest.py` points `PAPERCLIP_HOME` at `.paperclip-test` unless the shell already set it, so the suite does not write `~/.paperclip`.
+
 ## `test_working_memory.py`
 
-`Session.build_system` includes `Right now it is` and a `HH:MM` clock. A new `Session` uses `session_id` `"default"`. `start_new` sets the id and clears `history`. These two tests call `load_settings()` (the developer home), not `make_paperclip`.
+`Session.build_system` includes `Right now it is` and a `HH:MM` clock. A new `Session` uses `session_id` `"default"`. `start_new` sets the id and clears `history`. These two tests call `load_settings()` (the home from `evals/conftest.py`), not `make_paperclip`.

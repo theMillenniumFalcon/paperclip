@@ -1,13 +1,13 @@
-# Dashboard
+# API
 
-Code: `paperclip/ops/dashboard.py`
+Code: `paperclip/ops/api.py`
 
-Stdlib `ThreadingHTTPServer` bound to **127.0.0.1**. A JSON API (plus one SSE stream) over the same home directory the agent uses (`PAPERCLIP_HOME`, default `.paperclip`). It serves **no frontend**: the UI is a separate Next.js app that calls this API from another origin.
+Stdlib `ThreadingHTTPServer` bound to **127.0.0.1**. A JSON API (plus one SSE stream) over the same home directory the agent uses (`PAPERCLIP_HOME`, default `~/.paperclip`). It serves **no frontend**: the UI is a separate Next.js app that calls this API from another origin.
 
 ## Run
 
 ```bash
-python -m paperclip.ops.dashboard
+python -m paperclip api
 ```
 
 Port: `PAPERCLIP_DASHBOARD_PORT`, else `PORT`, else `7777`. If that port is busy, the next ports up to +9 are tried, so the frontend's API base URL must be configurable. Startup prints `Paperclip API -> http://localhost:<port>`. If `TELEGRAM_BOT_TOKEN` is set, `start_in_background()` from the Telegram gateway is started on a daemon thread.
@@ -61,7 +61,7 @@ The app calls `NEXT_PUBLIC_PAPERCLIP_API` (default `http://127.0.0.1:7777`). Its
 | `/api/chat/stream` | `{message}` | SSE `data:` events as the turn runs, then `kind: done` |
 | `/api/voice` | raw audio bytes | faster-whisper (`PAPERCLIP_WHISPER_MODEL`, default `base`; `PAPERCLIP_WHISPER_DEVICE`, default `cpu`) → `{text}` |
 | `/api/memory` | action payload | Update/delete facts or episodes, rewrite `SOUL.md`, or save a `SKILL.md` inside the skills folders |
-| `/api/settings` | provider, model, small_model, keys | Writes `.env` keys listed below and rebuilds the agent |
+| `/api/settings` | provider, model, small_model, keys | Writes `{home}/.env` (not a `.env` in the working directory) and rebuilds the agent |
 | `/api/query` | `{sql}` | One read-only `SELECT` or `WITH` against `state.db`, max 200 rows |
 | `/api/session` | `{action, id?}` | `new`, `switch`, or `history` on `chat_log` |
 | anything else | — | `404` `{"error": "not found"}` |

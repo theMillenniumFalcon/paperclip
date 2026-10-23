@@ -2,14 +2,14 @@
 
 Code: `paperclip/db.py`
 
-One file per install: `{home}/state.db` (default `{PAPERCLIP_HOME}/state.db`, often `.paperclip/state.db`). SQLite + FTS5, no separate server.
+One file per install: `{home}/state.db` (default `~/.paperclip/state.db`). SQLite + FTS5, no separate server.
 
 `connect(home, check_same_thread=True)` opens the file, runs `SCHEMA`, applies `_migrate`, sets `row_factory=sqlite3.Row`, `PRAGMA busy_timeout=3000`. Pass `check_same_thread=False` when a threaded server shares one connection (with a lock).
 
 Inspect locally:
 
 ```bash
-sqlite3 .paperclip/state.db ".tables"
+sqlite3 ~/.paperclip/state.db ".tables"
 ```
 
 Memory stores use the same connection: [semantic](memory/semantic.md), [episodic](memory/episodic.md), [consolidation](memory/consolidation.md).

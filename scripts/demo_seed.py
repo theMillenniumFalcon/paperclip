@@ -111,7 +111,7 @@ def main(reset_spend: bool = False) -> None:
         print("  CLEARED: usage.jsonl (money/token spend) — you approved this.")
     else:
         print("  KEPT: SOUL.md and usage.jsonl (your real spend — pass --reset-spend to wipe).")
-    print("  Run `python -m paperclip dashboard` and start filming.")
+    print("  Run `paperclip api` and start filming.")
 
 
 if __name__ == "__main__":

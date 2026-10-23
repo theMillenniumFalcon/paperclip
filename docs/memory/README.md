@@ -35,7 +35,7 @@ Default search is **FTS5 / BM25** on SQLite (no embeddings unless Supabase backe
 
 | Env | Default | Used for |
 | --- | --- | --- |
-| `PAPERCLIP_HOME` | `.paperclip` | `MEMORY.md`, `skills/`, `state.db` |
+| `PAPERCLIP_HOME` | `~/.paperclip` | `MEMORY.md`, `skills/`, `state.db` |
 | `PAPERCLIP_SMALL_MODEL` | (provider default) | Gate + consolidation |
 | `PAPERCLIP_SEMANTIC_STORE` | `sqlite` | `supabase` → `SupabaseFactStore` |
 | `PAPERCLIP_RETRIEVAL_TOP_K` | `4` | Fact search top-k |

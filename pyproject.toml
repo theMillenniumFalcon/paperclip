@@ -1,7 +1,11 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
-name = "paperclip"
+name = "paperclip-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "Local personal assistant"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -21,6 +25,15 @@ dependencies = [
     "python-telegram-bot>=22.8",
     "sounddevice>=0.5.6",
 ]
+
+[project.scripts]
+paperclip = "paperclip.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["paperclip"]
+
+[tool.hatch.build.targets.wheel.force-include]
+".env.example" = "paperclip/env.example"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

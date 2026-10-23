@@ -31,9 +31,9 @@ export default function Home() {
           <div className="space-y-4 prose">
           <p>Terminal, microphone, or Telegram. One assistant, three doors.</p>
           <pre>
-            <code>{`python -m paperclip
-python -m paperclip voice
-python -m paperclip telegram`}</code>
+            <code>{`paperclip
+paperclip voice
+paperclip telegram`}</code>
           </pre>
           </div>
         </div>
@@ -43,7 +43,7 @@ python -m paperclip telegram`}</code>
           <div className="space-y-4 prose">
             <p>
               Facts, dated episodes, and skills live in SQLite under{" "}
-              <code>.paperclip</code>. A small model decides whether a turn needs
+              <code>~/.paperclip</code>. A small model decides whether a turn needs
               a search. After a few exchanges it files what it learned, and
               rewrites a readable <code>MEMORY.md</code>.
             </p>
@@ -60,12 +60,14 @@ python -m paperclip telegram`}</code>
           <h2 className="text-stone-100 font-hammersmith text-lg! mb-4">Start</h2>
           <div className="space-y-4 prose">
           <pre>
-            <code>python -m paperclip</code>
+            <code>{`uv tool install paperclip-agent
+paperclip`}</code>
           </pre>
           <p>
-            Put <code>ANTHROPIC_API_KEY</code> in <code>.env</code>. OpenAI and
-            OpenRouter are the other providers.{" "}
-            <code>python -m paperclip dashboard</code> serves the local API.
+            The first launch creates <code>~/.paperclip/.env</code>. Put{" "}
+            <code>ANTHROPIC_API_KEY</code> there. OpenAI and OpenRouter are the
+            other providers. <code>paperclip api</code> serves the local
+            API.
           </p>
           </div>
         </div>

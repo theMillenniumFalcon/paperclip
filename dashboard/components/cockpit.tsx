@@ -18,7 +18,7 @@ function Offline({ message }: { message: string }) {
       <h2 className="text-base font-medium">Paperclip API is not reachable</h2>
       <p className="mt-2 text-sm text-muted-foreground">{message}</p>
       <p className="mt-3 text-sm">
-        Start <code className="rounded bg-muted px-1.5 py-0.5">python -m paperclip.ops.dashboard</code> and
+        Start <code className="rounded bg-muted px-1.5 py-0.5">paperclip api</code> and
         open this app on an allowlisted origin. Requests go to{" "}
         <code className="rounded bg-muted px-1.5 py-0.5">{API_BASE}</code>.
       </p>

@@ -37,7 +37,7 @@ OpenAI defaults avoid reasoning-only models that reject `chat.completions` witho
 ## `get_client(settings)`
 
 1. Look up `PROVIDERS[settings.provider]` or exit with allowed names.
-2. API key: `settings.api_key` or `provider.key_env` from the environment; exit if missing.
+2. API key: `settings.api_key` or `provider.key_env` from the environment. If both are empty, exit and name `{home}/.env` (`env_file()`).
 3. Fill empty `settings.model` / `settings.small_model` from the provider row.
 4. `base_url` = `settings.base_url` or `provider.base_url`.
 5. Return `anthropic.Anthropic(...)` or `OpenAICompatClient(...)`.

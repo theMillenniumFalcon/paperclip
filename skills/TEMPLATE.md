@@ -11,7 +11,7 @@ Tools that exist: `create_event`, `list_events`, `save_note`, `send_message` (lo
 
 ## Where it lives
 
-Copy this file to `skills/<name>/SKILL.md` in the repo, or to `.paperclip/skills/<name>/SKILL.md` for a skill created on this machine. `name` is a short slug: lowercase letters, digits, hyphens (for example `weekly-review`).
+Copy this file to `skills/<name>/SKILL.md` in the repo, or to `~/.paperclip/skills/<name>/SKILL.md` for a skill created on this machine. `name` is a short slug: lowercase letters, digits, hyphens (for example `weekly-review`).
 
 ## Edge cases
 

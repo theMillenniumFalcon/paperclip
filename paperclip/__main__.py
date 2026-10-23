@@ -11,10 +11,10 @@ def main() -> None:
         from paperclip.gateway.cli import main as cli_main
 
         cli_main()
-    elif args[0] == "dashboard":
-        from paperclip.ops.dashboard import main as dash_main
+    elif args[0] == "api":
+        from paperclip.ops.api import main as api_main
 
-        dash_main()
+        api_main()
     elif args[0] == "voice":
         from paperclip.gateway.voice import main as voice_main
 
@@ -32,7 +32,7 @@ def main() -> None:
 
         install(args[2])
     else:
-        print("Usage: python -m paperclip [dashboard|voice|telegram|brief|skill install <url>]")
+        print("Usage: paperclip [api|voice|telegram|brief|skill install <url>]")
         sys.exit(1)
 
 

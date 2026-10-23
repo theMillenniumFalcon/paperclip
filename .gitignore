@@ -54,9 +54,9 @@ data/
 *.sqlite3
 
 # Website (Next.js)
-website/node_modules/
-website/.next/
-website/.env.local
+web/node_modules/
+web/.next/
+web/.env.local
 
 # Coverage
 coverage.xml
